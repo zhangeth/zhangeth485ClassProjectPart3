@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-public class TableManagerTest {
+public class Part1Test {
   public static String EmployeeTableName = "Employee";
   public static String[] EmployeeTableAttributeNames = new String[]{"SSN", "Name"};
   public static AttributeType[] EmployeeTableAttributeTypes =

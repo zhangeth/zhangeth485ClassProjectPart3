@@ -19,6 +19,6 @@ clean:
 
 part1Test: preparation $(classes)
 	mkdir -p $(OUTDIR)
-	$(JAVA) -cp "$(OUTDIR):$(CLASSPATH)" org.junit.runner.JUnitCore CSCI485ClassProject.test.TableManagerTest
+	$(JAVA) -cp "$(OUTDIR):$(CLASSPATH)" org.junit.runner.JUnitCore CSCI485ClassProject.test.Part1Test
 
 .PHONY: part1Test clean preparation
