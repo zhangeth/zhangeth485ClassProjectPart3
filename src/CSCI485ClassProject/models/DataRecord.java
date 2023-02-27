@@ -9,19 +9,24 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static CSCI485ClassProject.StatusCode.ATTRIBUTE_TYPE_NOT_SUPPORTED;
 import static CSCI485ClassProject.StatusCode.DATA_RECORD_PRIMARY_KEYS_UNMATCHED;
-import static CSCI485ClassProject.StatusCode.DATA_RECORD_VALUE_TYPE_UNMATCHED;
 import static CSCI485ClassProject.StatusCode.SUCCESS;
 
 /**
- * DataRecord represents a row of a Table. It is identified by its primary key(s)
+ * DataRecord represents a row in a Table. It is identified by its primary key(s)
  */
 public class DataRecord {
 
-  public class Value {
-    private AttributeType attributeType;
+  /**
+   * Value represents the value corresponding to an attribute in a DataRecord.
+   * By default, it is of NULL type and has null value underneath; to set it with a non-null value,
+   * use {#Value.setTypeAndValue} method.
+   */
+  public static class Value {
+    private AttributeType attributeType = AttributeType.NULL;
 
-    private Object value;
+    private Object value = null;
 
     @Override
     public boolean equals(Object o) {
@@ -42,19 +47,15 @@ public class DataRecord {
       return attributeType;
     }
 
-    public void setAttributeType(AttributeType attributeType) {
-      this.attributeType = attributeType;
-    }
-
     public Object getValue() {
       return value;
     }
 
-    public StatusCode setValue(AttributeType attrType, Object value) {
+    public StatusCode setTypeAndValue(AttributeType attrType, Object value) {
       if ((attrType == AttributeType.INT && !(value instanceof Integer))
           || (attrType == AttributeType.VARCHAR && !(value instanceof String))
           || (attrType == AttributeType.DOUBLE && !(value instanceof Double)))
-        return DATA_RECORD_VALUE_TYPE_UNMATCHED;
+        return ATTRIBUTE_TYPE_NOT_SUPPORTED;
 
       this.value = value;
       this.attributeType = attrType;
