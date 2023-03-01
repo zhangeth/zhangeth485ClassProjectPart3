@@ -1,4 +1,4 @@
-package CSCI485ClassProject.tableSchemaManagement;
+package CSCI485ClassProject;
 
 import java.util.HashMap;
 import CSCI485ClassProject.StatusCode;

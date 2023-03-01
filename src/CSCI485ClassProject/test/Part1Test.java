@@ -5,8 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import CSCI485ClassProject.StatusCode;
 import CSCI485ClassProject.models.AttributeType;
-import CSCI485ClassProject.tableSchemaManagement.TableManager;
-import CSCI485ClassProject.tableSchemaManagement.TableManagerImpl;
+import CSCI485ClassProject.TableManager;
+import CSCI485ClassProject.TableManagerImpl;
 import CSCI485ClassProject.models.TableMetadata;
 import org.junit.Before;
 import org.junit.Test;

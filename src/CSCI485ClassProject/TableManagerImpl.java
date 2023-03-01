@@ -1,6 +1,7 @@
-package CSCI485ClassProject.tableSchemaManagement;
+package CSCI485ClassProject;
 
 import CSCI485ClassProject.StatusCode;
+import CSCI485ClassProject.TableManager;
 import CSCI485ClassProject.models.AttributeType;
 import CSCI485ClassProject.models.TableMetadata;
 
@@ -10,7 +11,7 @@ import java.util.HashMap;
  * TableManagerImpl implements interfaces in {#TableManager}. You should put your implementation
  * in this class.
  */
-public class TableManagerImpl implements TableManager{
+public class TableManagerImpl implements TableManager {
 
   @Override
   public StatusCode createTable(String tableName, String[] attributeNames, AttributeType[] attributeType,
