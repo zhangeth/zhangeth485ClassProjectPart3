@@ -4,31 +4,30 @@ import CSCI485ClassProject.models.ComparisonOperator;
 import CSCI485ClassProject.models.Record;
 import CSCI485ClassProject.models.TableMetadata;
 
-/**
- * Cursor hooks to a certain attribute in a table.
- *
- * It will traverse the qualified records in this table based on its direction, comparison operator and attribute value.
- *
- * It is created by {#Records.openCursor}
- */
 public abstract class Cursor {
 
-  public enum Direction {
-    ORDER,
-    REVERSE_ORDER
+  public enum Mode {
+    READ_ONLY,
+    READ_WRITE,
+    WRITE_ONLY
   }
 
   private TableMetadata tableMetadata;
 
   private ComparisonOperator operator;
 
-  /**
-   * Direction is set when {#Records.getFirst} or {#Records.getLast} is called
-   */
-  private Direction direction;
+  private Mode mode;
+
+  public final Mode getMode() {
+    return mode;
+  }
+
+  public final void setMode(Mode mode) {
+    this.mode = mode;
+  }
 
   /**
-   * The attributeName that the Cursor is hooked to.
+   * The attributeName that the Cursor may hooks to.
    */
   private String attrName;
 

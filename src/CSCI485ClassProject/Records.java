@@ -27,32 +27,44 @@ public interface Records {
   StatusCode insertRecord(String tableName, String[] primaryKeys, Object[] primaryKeysValues, String[] attrNames, Object[] attrValues);
 
   /**
-   * Open a cursor that hooks to certain attributes in a table.
-   *
-   * Cursor can be used to read/update/delete records of a table
+   * Open a READ_ONLY cursor that hooks to the certain attribute with predicate.
    *
    * @param tableName the target table name
    * @param attrName the attribute name
    * @param attrValue the attribute value
    * @param operator the operator imposed on the target attribute and value. See {ComparisonOperator} for supported operator types.
+   * @param indexType NO_INDEX if not using any index, otherwise use the given index type when doing operations
    * @return Cursor
    */
-  Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator);
+  Cursor openReadOnlyCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, IndexType indexType);
 
   /**
-   * Open a cursor that hooks to the certain attribute with certain index in a table.
+   * Open a READ_ONLY cursor without any predicate or index.
    *
-   * Given type of the index structure should exist on the given attribute.
-   *
-   * After open a cursor, either {getFirst} or {getLast} should be called in order to perform certain operations using cursor,
    * @param tableName the target table name
-   * @param attrName the attribute name
-   * @param attrValue the attribute value
-   * @param operator the operator imposed on the target attribute and value. See {ComparisonOperator} for supported operator types.
-   * @param indexType the target type of index
    * @return Cursor
    */
-  Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, IndexType indexType);
+  Cursor openReadOnlyCursor(String tableName);
+
+  /**
+   * Open a cursor in READ_WRITE/WRITE_ONLY mode that hooks to the certain attribute in a table.
+   *
+   * @param tableName the target tableName
+   * @param attrName the target attribute Name
+   * @param attrValue the attribute value for the predicate
+   * @param operator the operator used by the predicate
+   * @param mode the mode of the cursor
+   * @return Cursor
+   */
+  Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, Cursor.Mode mode);
+
+  /**
+   * Open a cursor in READ_WRITE/WRITE_ONLY mode without any predicate
+   *
+   * @param tableName
+   * @return
+   */
+  Cursor openCursor(String tableName);
 
   /**
    * Seek the cursor to the first qualified record.
@@ -68,7 +80,6 @@ public interface Records {
    */
   Record getLast(Cursor cursor);
 
-  // if last record -> EOF
   /**
    * Move the cursor to the next valid record and return. If it is already at the last record, return the EOF
    * @param cursor the cursor to move next
@@ -87,8 +98,7 @@ public interface Records {
    * Update the record that the cursor is pointing at, with new attribute values.
    *
    * If the given attribute(s) do not exist, the attribute should be added to the table schema.
-   * If index type is specified when opening the cursor, the corresponding index record should also be updated
-   * TODO: what if there are multiple indexes on this record?
+   * If index structures are built on some attributes, they should also be updated
    * @param cursor the target cursor
    * @param attrNames the attribute names
    * @param attrValues the corresponding attribute values

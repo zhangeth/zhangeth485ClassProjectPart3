@@ -3,6 +3,7 @@ package CSCI485ClassProject;
 import CSCI485ClassProject.models.Record;
 
 public class CursorImpl extends Cursor {
+
   @Override
   public boolean hasNext() {
     return false;

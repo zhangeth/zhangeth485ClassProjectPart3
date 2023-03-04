@@ -11,12 +11,22 @@ public class RecordsImpl implements Records{
   }
 
   @Override
-  public Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator) {
+  public Cursor openReadOnlyCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, IndexType indexType) {
     return null;
   }
 
   @Override
-  public Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, IndexType indexType) {
+  public Cursor openReadOnlyCursor(String tableName) {
+    return null;
+  }
+
+  @Override
+  public Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, Cursor.Mode mode) {
+    return null;
+  }
+
+  @Override
+  public Cursor openCursor(String tableName) {
     return null;
   }
 
