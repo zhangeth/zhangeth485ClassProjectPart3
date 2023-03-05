@@ -17,6 +17,7 @@ public interface Records {
    *
    * If given attributes does not exist in the schema, attributes will be added to the schema.
    *
+   * If corresponding records already exists, return ErrorCode
    * @param tableName the target tableName
    * @param primaryKeys primary keys
    * @param primaryKeysValues corresponding values of primary keys
@@ -88,7 +89,15 @@ public interface Records {
   Record getNext(Cursor cursor);
 
   /**
+   * Check if cursor is valid and has next record
+   * @param cursor the cursor to move next
+   * @return true if the next record exists, otherwise return false
+   */
+  boolean hasNext(Cursor cursor);
+
+  /**
    * Move the cursor to the previous valid record and return. If it is already at the first record, return the EOF
+   * TODO: consider remove it.
    * @param cursor the cursor to move previous
    * @return Record if the previous record exists, otherwise return null
    */
@@ -110,11 +119,18 @@ public interface Records {
    * Delete the record that the cursor is pointing at.
    *
    * If index type is specified when opening the cursor, the corresponding index record should also be deleted
-   * TODO: what if there are multiple indexes on this record?
    * @param cursor
    * @return
    */
   StatusCode deleteRecord(Cursor cursor);
+
+
+  /**
+   * Commit the writes of cursor, cursor must be in READ_WRITE or WRITE_ONLY mode
+   * @param cursor the target cursor
+   * @return StatusCode
+   */
+  StatusCode commitCursor(Cursor cursor);
 
   /**
    * Close the cursor

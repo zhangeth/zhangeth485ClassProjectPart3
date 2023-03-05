@@ -20,6 +20,9 @@ public class TableMetadata {
   // A list contains names of the primary key attribute.
   private List<String> primaryKeys;
 
+  // Map from AttributeName to IndexType, empty if no index on any attribute,
+  private HashMap<String, IndexType> indexes;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -60,6 +63,14 @@ public class TableMetadata {
 
   public void setAttributes(HashMap<String, AttributeType> attributes) {
     this.attributes = attributes;
+  }
+
+  public HashMap<String, IndexType> getIndexes() {
+    return indexes;
+  }
+
+  public void setIndexes(HashMap<String, IndexType> indexes) {
+    this.indexes = indexes;
   }
 
   public List<String> getPrimaryKeys() {

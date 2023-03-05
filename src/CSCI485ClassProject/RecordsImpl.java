@@ -46,6 +46,11 @@ public class RecordsImpl implements Records{
   }
 
   @Override
+  public boolean hasNext(Cursor cursor) {
+    return false;
+  }
+
+  @Override
   public Record getPrevious(Cursor cursor) {
     return null;
   }
@@ -58,6 +63,11 @@ public class RecordsImpl implements Records{
   @Override
   public StatusCode deleteRecord(Cursor cursor) {
     return StatusCode.SUCCESS;
+  }
+
+  @Override
+  public StatusCode commitCursor(Cursor cursor) {
+    return null;
   }
 
   @Override

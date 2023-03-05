@@ -13,7 +13,7 @@ public interface Indexes {
    * @param attrName the target attribute name
    * @return StatusCode
    */
-  StatusCode createIndex(String tableName, IndexType indexType, String attrName);
+  StatusCode createIndex(String tableName, String attrName, IndexType indexType);
 
   /**
    * Remove the index structure from an attribute in a table.
@@ -21,8 +21,7 @@ public interface Indexes {
    * The table, attribute and index structure should exist.
    * @param tableName the target table name
    * @param attrName the target attribute name
-   * @param indexType the type of index
    * @return StatusCode
    */
-  StatusCode removeIndex(String tableName, String attrName, IndexType indexType);
+  StatusCode removeIndex(String tableName, String attrName);
 }
