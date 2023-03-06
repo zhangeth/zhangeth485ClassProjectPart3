@@ -69,9 +69,12 @@ public class Part2Test {
 
     Random generator = new Random(seed);
     for (int i = 0; i<initialNumberOfRecords; i++) {
-      int idx = generator.nextInt(Integer.MAX_VALUE);
-      String name = "Name" + idx;
+      String name = "Name" + i;
       long ssn = i;
+      Email is a sequence of 8 characters "ABCDEFGH"+i+"@usc.edu";
+      age = (i+25)%90;
+      address is a sequence of all characters "ABC..Z"+i;
+      
       assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, new Object[]{ssn}, new String[]{"Name"}, new Object[] {name}));
       numberOfRecords++;
     }
@@ -87,8 +90,7 @@ public class Part2Test {
     Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ);
     assertNotNull(cursor);
 
-    List<Record> employRecords = new ArrayList<>();
-    employRecords.add(records.getFirst(cursor));
+    Record rec = records.getFirst(cursor);
 
     while (true) {
       Record rec = records.getNext(cursor);
