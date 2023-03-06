@@ -1,8 +1,6 @@
 package CSCI485ClassProject.test;
 
 import CSCI485ClassProject.Cursor;
-import CSCI485ClassProject.Indexes;
-import CSCI485ClassProject.IndexesImpl;
 import CSCI485ClassProject.Records;
 import CSCI485ClassProject.RecordsImpl;
 import CSCI485ClassProject.StatusCode;
@@ -10,17 +8,13 @@ import CSCI485ClassProject.TableManager;
 import CSCI485ClassProject.TableManagerImpl;
 import CSCI485ClassProject.models.AttributeType;
 import CSCI485ClassProject.models.ComparisonOperator;
-import CSCI485ClassProject.models.IndexType;
 import CSCI485ClassProject.models.Record;
 import CSCI485ClassProject.models.TableMetadata;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,31 +23,59 @@ import static org.junit.Assert.assertNull;
 public class Part2Test {
 
   public static String EmployeeTableName = "Employee";
-  public static String[] EmployeeTableAttributeNames = new String[]{"SSN", "Name", "Email", "Age", "Address"};
-  public static AttributeType[] EmployeeTableAttributeTypes =
-      new AttributeType[]{AttributeType.INT, AttributeType.VARCHAR};
-  public static String[] EmployeeTablePKAttributes = new String[]{"SSN"};
+  public static String SSN = "SSN";
+  public static String Name = "Name";
+  public static String Email = "Email";
+  public static String Age = "Age";
+  public static String Address = "Address";
+  public static String Salary = "Salary";
 
-  public static int seed = 485;
-  public static int updateSeed1 = 488;
-  public static int updateSeed2 = 600;
+  public static String[] EmployeeTableAttributeNames = new String[]{SSN, Name, Email, Age, Address};
+  public static String[] EmployeeTableNonPKAttributeNames = new String[]{Name, Email, Age, Address};
+  public static AttributeType[] EmployeeTableAttributeTypes =
+      new AttributeType[]{AttributeType.INT, AttributeType.VARCHAR, AttributeType.VARCHAR, AttributeType.INT, AttributeType.VARCHAR};
+
+  public static String[] UpdatedEmployeeTableNonPKAttributeNames = new String[]{Name, Email, Age, Address, Salary};
+  public static String[] EmployeeTablePKAttributes = new String[]{"SSN"};
 
 
   public static int initialNumberOfRecords = 100;
   public static int updatedNumberOfRecords = initialNumberOfRecords / 2;
+
   public static int numberOfRecords = 0;
 
   private TableManager tableManager;
   private Records records;
-  private Indexes indexes;
+
+  private String getName(int i) {
+    return "Name" + i;
+  }
+
+  private String getEmail(int i) {
+    return "ABCDEFGH" + i + "@usc.edu";
+  }
+
+  private int getAge(int i) {
+    return (i+25)%90;
+  }
+
+  private String getAddress(int i) {
+    return "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + i;
+  }
+
+  private long getSalary(int i) {
+    return i + 100;
+  }
 
   @Before
   public void init(){
     tableManager = new TableManagerImpl();
     records = new RecordsImpl();
-    indexes = new IndexesImpl();
   }
 
+  /**
+   * Points: 10
+   */
   @Test
   public void unitTest1() {
     tableManager.dropAllTables();
@@ -67,15 +89,17 @@ public class Part2Test {
     assertEquals(1, tables.size());
     assertEquals(EmployeeTable, tables.get(EmployeeTableName));
 
-    Random generator = new Random(seed);
     for (int i = 0; i<initialNumberOfRecords; i++) {
-      String name = "Name" + i;
-      long ssn = i;
-      Email is a sequence of 8 characters "ABCDEFGH"+i+"@usc.edu";
-      age = (i+25)%90;
-      address is a sequence of all characters "ABC..Z"+i;
-      
-      assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, new Object[]{ssn}, new String[]{"Name"}, new Object[] {name}));
+      int ssn = i;
+      String name = getName(i);
+      String email = getEmail(i);
+      int age = getAge(i);
+      String address = getAddress(i);
+
+      Object[] primaryKeyVal = new Object[] {ssn};
+      Object[] nonPrimaryKeyVal = new Object[] {name, email, age, address};
+
+      assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, primaryKeyVal, EmployeeTableNonPKAttributeNames, nonPrimaryKeyVal));
       numberOfRecords++;
     }
 
@@ -85,428 +109,302 @@ public class Part2Test {
     System.out.println("Test1 pass!");
   }
 
+  /**
+   * Points: 15
+   */
   @Test
   public void unitTest2() {
     Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ);
     assertNotNull(cursor);
 
+    // initialize the first record
     Record rec = records.getFirst(cursor);
+    // verify the first record
+    assertNotNull(rec);
+    int ssn = 0;
+    assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
+    assertEquals(getName(ssn), rec.getValueForGivenAttrName(Name));
+    assertEquals(getEmail(ssn), rec.getValueForGivenAttrName(Email));
+    assertEquals(getAge(ssn), rec.getValueForGivenAttrName(Age));
+    assertEquals(getAddress(ssn), rec.getValueForGivenAttrName(Address));
+    ssn++;
 
     while (true) {
-      Record rec = records.getNext(cursor);
+      rec = records.getNext(cursor);
       if (rec == null) {
         break;
       }
-      employRecords.add(rec);
+      assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
+      assertEquals(getName(ssn), rec.getValueForGivenAttrName(Name));
+      assertEquals(getEmail(ssn), rec.getValueForGivenAttrName(Email));
+      assertEquals(getAge(ssn), rec.getValueForGivenAttrName(Age));
+      assertEquals(getAddress(ssn), rec.getValueForGivenAttrName(Address));
+      ssn++;
     }
+    System.out.println("Test2 pass!");
+  }
 
-    List<Record> expectRecords = new ArrayList<>();
-    Random generator = new Random(seed);
+  /**
+   * Points: 15
+   */
+  @Test
+  public void unitTest3() {
+    // insert records with new column "Salary"
+    for (int i = initialNumberOfRecords; i<initialNumberOfRecords + updatedNumberOfRecords; i++) {
+      int ssn = i;
+      String name = getName(i);
+      String email = getEmail(i);
+      int age = getAge(i);
+      String address = getAddress(i);
+      long salary = getSalary(i);
 
 
-    for (int i = 0; i<initialNumberOfRecords; i++) {
-      int idx = generator.nextInt(Integer.MAX_VALUE);
-      String name = "Name" + idx;
-      long ssn = i;
+      Object[] primaryKeyVal = new Object[] {ssn};
+      Object[] nonPrimaryKeyVal = new Object[] {name, email, age, address, salary};
 
-      Record rec = new Record();
-      rec.setAttrNameAndValue("Name", name);
-      rec.setAttrNameAndValue("SSN", ssn);
-      expectRecords.add(rec);
-    }
-
-    records.abortCursor(cursor);
-    // verify the initial records is inserted
-    assertEquals(initialNumberOfRecords, employRecords.size());
-    assertEquals(true, expectRecords.containsAll(employRecords));
-    assertEquals(true, employRecords.containsAll(expectRecords));
-
-    generator = new Random(updateSeed1);
-
-    for (int i = 0; i<updatedNumberOfRecords; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      String name = "Name" + randNum;
-      long salary = randNum;
-      long ssn = numberOfRecords;
-      assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, new Object[]{ssn}, new String[]{"Name", "Salary"}, new Object[] {name, salary}));
+      assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, primaryKeyVal, UpdatedEmployeeTableNonPKAttributeNames, nonPrimaryKeyVal));
       numberOfRecords++;
     }
 
-
-    TableMetadata updatedEmployeeTable = new TableMetadata();
-    updatedEmployeeTable.addAttribute("SSN", AttributeType.INT);
-    updatedEmployeeTable.addAttribute("Name", AttributeType.VARCHAR);
-    updatedEmployeeTable.addAttribute("Salary", AttributeType.INT);
-    updatedEmployeeTable.setPrimaryKeys(Collections.singletonList("SSN"));
-
     // verify the schema changing
+    TableMetadata expectedEmployeeTableSchema = new TableMetadata();
+    expectedEmployeeTableSchema.addAttribute(SSN, AttributeType.INT);
+    expectedEmployeeTableSchema.addAttribute(Name, AttributeType.VARCHAR);
+    expectedEmployeeTableSchema.addAttribute(Email, AttributeType.VARCHAR);
+    expectedEmployeeTableSchema.addAttribute(Address, AttributeType.VARCHAR);
+    expectedEmployeeTableSchema.addAttribute(Age, AttributeType.INT);
+    expectedEmployeeTableSchema.addAttribute(Salary, AttributeType.INT);
+    expectedEmployeeTableSchema.setPrimaryKeys(Collections.singletonList("SSN"));
+
     HashMap<String, TableMetadata> tables = tableManager.listTables();
     assertEquals(1, tables.size());
-    assertEquals(updatedEmployeeTable, tables.get(EmployeeTableName));
+    assertEquals(expectedEmployeeTableSchema, tables.get(EmployeeTableName));
+    System.out.println("Test3 pass!");
+  }
 
-    generator = new Random(updateSeed1);
-    // verify the data is inserted
-    for (int i = 0; i<initialNumberOfRecords / 2; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      long salary = i+1;
-      long ssn = i + initialNumberOfRecords;
-      String name = "Name" + randNum;
-      cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
+  /**
+   * Points: 15
+   */
+  @Test
+  public void unitTest4() {
+    // use cursor to select the record with given name, and verify the correctness
+    Cursor cursor;
+    for (int i = initialNumberOfRecords; i<initialNumberOfRecords + updatedNumberOfRecords; i++) {
+      int ssn = i;
+      String name = getName(i);
+      String email = getEmail(i);
+      int age = getAge(i);
+      String address = getAddress(i);
+      long salary = getSalary(i);
+
+      cursor = records.openCursor(EmployeeTableName, Name, name, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
 
       Record record = records.getFirst(cursor);
       assertNotNull(record);
-      assertEquals(ssn, record.getValueForGivenAttrName("SSN"));
-      assertEquals(salary, record.getValueForGivenAttrName("Salary"));
-      assertEquals(name, record.getValueForGivenAttrName("Name"));
+      assertEquals(ssn, record.getValueForGivenAttrName(SSN));
+      assertEquals(salary, record.getValueForGivenAttrName(Salary));
+      assertEquals(name, record.getValueForGivenAttrName(Name));
+      assertEquals(email, record.getValueForGivenAttrName(Email));
+      assertEquals(age, record.getValueForGivenAttrName(Age));
+      assertEquals(address, record.getValueForGivenAttrName(Address));
 
       assertNull(records.getNext(cursor));
       assertNull(records.getPrevious(cursor));
     }
-
-    System.out.println("Test2 pass!");
-  }
-
-  @Test
-  public void unitTest3() {
-    // create the B+Tree index on the Salary property
-    assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, "Salary", IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
-
-    int offset = 1;
-    Cursor cursor = records.openCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ, true);
-
-    // get 10 records with Salary >= 1 using cursor
-    List<Record> employSalRecord = new ArrayList<>();
-    employSalRecord.add(records.getFirst(cursor));
-    for (int i = 1; i < 10; i++) {
-      employSalRecord.add(records.getNext(cursor));
-    }
-    records.abortCursor(cursor);
-
-    // verify the record is correct
-    Random generator = new Random(updateSeed1);
-    for (int i = 1; i < offset; i++) {
-      generator.nextInt(Integer.MAX_VALUE);
-    }
-    for (int i = 0; i < 10; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      long salary = i + offset;
-      long ssn = i + initialNumberOfRecords + offset;
-      String name = "Name" + randNum;
-
-      Record record = employSalRecord.get(i);
-      assertNotNull(record);
-      assertEquals(ssn, record.getValueForGivenAttrName("SSN"));
-      assertEquals(salary, record.getValueForGivenAttrName("Salary"));
-      assertEquals(name, record.getValueForGivenAttrName("Name"));
-    }
-
-    System.out.println("Test3 pass!");
-  }
-
-  @Test
-  public void unitTest4() {
-    int offset = 4000;
-    Cursor cursor = records.openCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ, true);
-
-    // get 10 records with Salary >= 4000 using cursor
-    List<Record> employSalRecord = new ArrayList<>();
-    employSalRecord.add(records.getFirst(cursor));
-    for (int i = 1; i < 10; i++) {
-      employSalRecord.add(records.getNext(cursor));
-    }
-    records.abortCursor(cursor);
-
-    // verify the record is correct
-    Random generator = new Random(updateSeed1);
-    for (int i = 1; i < offset; i++) {
-      generator.nextInt(Integer.MAX_VALUE);
-    }
-    for (int i = 0; i < 10; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      long salary = i + offset;
-      long ssn = i + initialNumberOfRecords + offset;
-      String name = "Name" + randNum;
-
-      Record record = employSalRecord.get(i);
-      assertNotNull(record);
-      assertEquals(ssn, record.getValueForGivenAttrName("SSN"));
-      assertEquals(salary, record.getValueForGivenAttrName("Salary"));
-      assertEquals(name, record.getValueForGivenAttrName("Name"));
-    }
-
-    generator = new Random(updateSeed1);
-    assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, "Salary", IndexType.NON_CLUSTERED_HASH_INDEX));
-    for (int i = 0; i<100; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      long salary = i + 1;
-      long ssn = i + initialNumberOfRecords;
-      String name = "Name" + randNum;
-
-      cursor = records.openCursor(EmployeeTableName, "Name", name, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
-      Record record = records.getFirst(cursor);
-
-      assertNotNull(record);
-      assertEquals(ssn, record.getValueForGivenAttrName("SSN"));
-      assertEquals(salary, record.getValueForGivenAttrName("Salary"));
-      assertEquals(name, record.getValueForGivenAttrName("Name"));
-
-      records.abortCursor(cursor);
-    }
-
-    // insert records to see if the index structure updated
-    long nextSSN = numberOfRecords;
-    generator = new Random(updateSeed2);
-    for (int i = 0; i<100; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      long ssn = numberOfRecords;
-      long salary = numberOfRecords;
-      String name = "Name" + randNum;
-      assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, new Object[]{ssn}, new String[]{"Name", "Salary"}, new Object[] {name, salary}));
-      numberOfRecords++;
-    }
-
-    // delete the records
-    for (int i = 0; i<100; i--) {
-      long ssn = nextSSN + i;
-      assertEquals(StatusCode.SUCCESS, records.deleteDataRecord(EmployeeTableName, new String[]{"SSN"}, new Object[]{ssn}));
-      numberOfRecords--;
-    }
-
     System.out.println("Test4 pass!");
   }
 
+  /**
+   * Points: 15
+   */
   @Test
   public void unitTest5() {
-    for (int i = 0; i<updatedNumberOfRecords; i++) {
-      long ssn = i;
-      long salary = i+1;
+    // use cursor to select the record with given salary, and verify the correctness
+    int ssnStart = 30;
+    int ssnEnd = 40;
+    Cursor cursor;
+    for (int i = 30; i<=ssnEnd; i++) {
+      int ssn = i;
+      String name = getName(i);
+      String email = getEmail(i);
+      int age = getAge(i);
+      String address = getAddress(i);
+      long salary = getSalary(i);
 
-      if (salary % 2 == 0) {
-        continue;
-      }
-      // delete the odd Salary records
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_WRITE, true);
-      Record rec = records.getFirst(cursor);
+      cursor = records.openCursor(EmployeeTableName, Salary, salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
 
-      assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
-      assertEquals(salary, rec.getValueForGivenAttrName("Salary"));
-      assertEquals(StatusCode.SUCCESS, records.deleteRecord(cursor));
-      records.commitCursor(cursor);
-      numberOfRecords--;
+      Record record = records.getFirst(cursor);
+      assertNotNull(record);
+      assertEquals(ssn, record.getValueForGivenAttrName(SSN));
+      assertEquals(salary, record.getValueForGivenAttrName(Salary));
+      assertEquals(name, record.getValueForGivenAttrName(Name));
+      assertEquals(email, record.getValueForGivenAttrName(Email));
+      assertEquals(age, record.getValueForGivenAttrName(Age));
+      assertEquals(address, record.getValueForGivenAttrName(Address));
+
+      assertNull(records.getNext(cursor));
+      assertNull(records.getPrevious(cursor));
     }
-
-    // verify the deletion
-    for (int i = 0; i<updatedNumberOfRecords; i++) {
-      long ssn = i + initialNumberOfRecords;
-      long salary = i+1;
-
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
-      Record rec = records.getFirst(cursor);
-      if (salary % 2 == 0) {
-        assertNotNull(rec);
-        assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
-        assertEquals(salary, rec.getValueForGivenAttrName("Salary"));
-      } else {
-        assertNull(rec);
-      }
-      records.abortCursor(cursor);
-    }
-
     System.out.println("Test5 pass!");
   }
 
+  /**
+   * Points: 15
+   */
   @Test
   public void unitTest6() {
-    // insert odd number records back
-    Random generator = new Random(updateSeed1);
-    for (int i = 0; i<updatedNumberOfRecords; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      long ssn = i + initialNumberOfRecords;
-      long salary = i+1;
-      String name = "Name" + randNum;
+    Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_WRITE);
+    assertNotNull(cursor);
 
-      if (salary % 2 == 0) {
-        continue;
+    // delete the records with odd SSN
+    // initialize the first record
+    Record rec = records.getFirst(cursor);
+    assertNotNull(rec);
+    if ((long) rec.getValueForGivenAttrName(SSN) % 2 == 1) {
+      assertEquals(StatusCode.SUCCESS, records.deleteRecord(cursor));
+    }
+
+    while (true) {
+      rec = records.getNext(cursor);
+      if (rec == null) {
+        break;
       }
-      // insert records
-      assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, new Object[]{ssn}, new String[]{"Name", "Salary"}, new Object[] {name, salary}));
-      numberOfRecords++;
-    }
-
-    // verify the insertion
-    generator = new Random(updateSeed1);
-    for (int i = 0; i<updatedNumberOfRecords; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      long ssn = i + initialNumberOfRecords;
-      long salary = i+1;
-      String name = "Name" + randNum;
-
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
-      Record rec = records.getFirst(cursor);
-      assertNotNull(rec);
-      assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
-      assertEquals(salary, rec.getValueForGivenAttrName("Salary"));
-      assertEquals(name, rec.getValueForGivenAttrName("Name"));
-    }
-
-    // try to insert even numbered records and delete the odd numbered records
-    generator = new Random(updateSeed1);
-    for (int i = 0; i<updatedNumberOfRecords; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      long ssn = i + initialNumberOfRecords;
-      long salary = i+1;
-      String name = "Name" + randNum;
-
-      if (salary % 2 == 0) {
-        assertEquals(StatusCode.DATA_RECORD_CREATION_RECORD_ALREADY_EXISTS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, new Object[]{ssn}, new String[]{"Name", "Salary"}, new Object[] {name, salary}));
-      } else {
-        // delete the odd numbered records
-        Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_WRITE, true);
-        Record rec = records.getFirst(cursor);
-
-        assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
-        assertEquals(salary, rec.getValueForGivenAttrName("Salary"));
-        assertEquals(name, rec.getValueForGivenAttrName("Name"));
-
+      long ssn = (long) rec.getValueForGivenAttrName(SSN);
+      if (ssn % 2 == 1) {
+        // if ssn is odd, delete it
         assertEquals(StatusCode.SUCCESS, records.deleteRecord(cursor));
-        records.commitCursor(cursor);
-        numberOfRecords--;
       }
     }
 
-    // verify the deletion
-    generator = new Random(updateSeed1);
-    for (int i = 0; i<updatedNumberOfRecords; i++) {
-      long ssn = i + initialNumberOfRecords;
-      long salary = i+1;
+    assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
 
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
-      Record rec = records.getFirst(cursor);
-      if (salary % 2 == 0) {
+    // verify that odd records are gone
+    for (int i = 0; i<updatedNumberOfRecords + initialNumberOfRecords; i++) {
+      int ssn = i;
+      String name = getName(i);
+      String email = getEmail(i);
+      int age = getAge(i);
+      String address = getAddress(i);
+      long salary = getSalary(i);
+
+      cursor = records.openCursor(EmployeeTableName, SSN, ssn, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
+      rec = records.getFirst(cursor);
+      if (ssn % 2 == 0) {
         assertNotNull(rec);
-        assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
-        assertEquals(salary, rec.getValueForGivenAttrName("Salary"));
+        assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
+        assertEquals(salary, rec.getValueForGivenAttrName(Salary));
+        assertEquals(name, rec.getValueForGivenAttrName(Name));
+        assertEquals(email, rec.getValueForGivenAttrName(Email));
+        assertEquals(age, rec.getValueForGivenAttrName(Age));
+        assertEquals(address, rec.getValueForGivenAttrName(Address));
       } else {
+        // odd records should have gone
         assertNull(rec);
       }
-      records.abortCursor(cursor);
     }
 
-    // update the even number salary to be odd number salary
-    generator = new Random(updateSeed1);
-    for (int i = 0; i<updatedNumberOfRecords; i++) {
-      int randNum = generator.nextInt(Integer.MAX_VALUE);
-      long ssn = i + initialNumberOfRecords;
-      long salary = i+1;
-      String name = "Name" + randNum;
-
-      if (salary % 2 == 0) {
-        Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_WRITE, true);
-        Record rec = records.getFirst(cursor);
-
-        assertNotNull(rec);
-        assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
-        assertEquals(salary, rec.getValueForGivenAttrName("Salary"));
-        assertEquals(name, rec.getValueForGivenAttrName("Name"));
-
-        assertEquals(StatusCode.SUCCESS, records.updateRecord(cursor, new String[]{"Salary"}, new Object[]{salary+1}));
-
-        records.commitCursor(cursor);
-      }
-    }
-
-    // verify the even number salary gone and odd number salary exists
-    for (int i = 0; i<updatedNumberOfRecords; i++) {
-      long ssn = i + initialNumberOfRecords;
-      long salary = i+1;
-
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
-      Record rec = records.getFirst(cursor);
-      if (salary % 2 == 1) {
-        assertNotNull(rec);
-        assertEquals(ssn-1, rec.getValueForGivenAttrName("SSN"));
-        assertEquals(salary, rec.getValueForGivenAttrName("Salary"));
-      } else {
-        assertNull(rec);
-      }
-      records.abortCursor(cursor);
-    }
     System.out.println("Test6 pass!");
   }
 
+  /**
+   * Points: 15
+   */
   @Test
   public void unitTest7() {
-    assertEquals(StatusCode.INDEX_ALREADY_EXISTS_ON_ATTRIBUTE, indexes.createIndex(EmployeeTableName, "Salary", IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
-    assertEquals(StatusCode.INDEX_NOT_FOUND, indexes.removeIndex(EmployeeTableName, "Salary"));
-    assertEquals(StatusCode.INDEX_NOT_FOUND, indexes.removeIndex(EmployeeTableName, "SSN"));
-    assertEquals(StatusCode.SUCCESS, indexes.removeIndex(EmployeeTableName, "Salary"));
-    assertEquals(StatusCode.SUCCESS, indexes.removeIndex(EmployeeTableName, "Name"));
+    // insert the odd records back
+    for (int i = 0; i<updatedNumberOfRecords + initialNumberOfRecords; i++) {
+      int ssn = i;
+      String name = getName(i);
+      String email = getEmail(i);
+      int age = getAge(i);
+      String address = getAddress(i);
+      long salary = getSalary(i);
 
+      Object[] primaryKeyVal = new Object[] {ssn};
+      Object[] nonPrimaryKeyVal = new Object[] {name, email, age, address, salary};
+      if (ssn % 2 == 1) {
+        assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, primaryKeyVal, UpdatedEmployeeTableNonPKAttributeNames, nonPrimaryKeyVal));
+      } else {
+        assertEquals(StatusCode.DATA_RECORD_CREATION_RECORD_ALREADY_EXISTS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, primaryKeyVal, UpdatedEmployeeTableNonPKAttributeNames, nonPrimaryKeyVal));
+      }
+    }
+
+    // verify that odd records are back
+    Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_WRITE);
+    assertNotNull(cursor);
+
+    // verify that all records are there, and delete the odd SSN records again
+    Record rec = records.getFirst(cursor);
+    // verify the first record
+    assertNotNull(rec);
+    int ssn = 0;
+    assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
+    assertEquals(getName(ssn), rec.getValueForGivenAttrName(Name));
+    assertEquals(getEmail(ssn), rec.getValueForGivenAttrName(Email));
+    assertEquals(getAge(ssn), rec.getValueForGivenAttrName(Age));
+    assertEquals(getAddress(ssn), rec.getValueForGivenAttrName(Address));
+    ssn++;
+
+    while (true) {
+      rec = records.getNext(cursor);
+      if (rec == null) {
+        break;
+      }
+      assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
+      assertEquals(getName(ssn), rec.getValueForGivenAttrName(Name));
+      assertEquals(getEmail(ssn), rec.getValueForGivenAttrName(Email));
+      assertEquals(getAge(ssn), rec.getValueForGivenAttrName(Age));
+      assertEquals(getAddress(ssn), rec.getValueForGivenAttrName(Address));
+
+      if (ssn % 2 == 1) {
+        // delete the odd SSN records
+        assertEquals(StatusCode.SUCCESS, records.deleteRecord(cursor));
+      }
+      ssn++;
+    }
+    assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
+
+    // update even SSN records to be odd
+    cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_WRITE);
+    assertNotNull(cursor);
+
+    rec = records.getFirst(cursor);
+    assertNotNull(rec);
+    long recSSN = (long) rec.getValueForGivenAttrName(SSN);
+    records.updateRecord(cursor, new String[]{SSN}, new Object[]{recSSN+1});
+
+    while (true) {
+      rec = records.getNext(cursor);
+      if (rec == null) {
+        break;
+      }
+      recSSN = (long) rec.getValueForGivenAttrName(SSN);
+      records.updateRecord(cursor, new String[]{SSN}, new Object[]{recSSN+1});
+    }
+    assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
+
+    // verify the odd number records are there
+    for (int i = 0; i<updatedNumberOfRecords + initialNumberOfRecords; i++) {
+      ssn = i;
+      String name = getName(i);
+      String email = getEmail(i);
+      int age = getAge(i);
+      String address = getAddress(i);
+
+      cursor = records.openCursor(EmployeeTableName, SSN, ssn, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
+      rec = records.getFirst(cursor);
+      if (ssn % 2 == 1) {
+        assertNotNull(rec);
+        assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
+        assertEquals(name, rec.getValueForGivenAttrName(Name));
+        assertEquals(email, rec.getValueForGivenAttrName(Email));
+        assertEquals(age, rec.getValueForGivenAttrName(Age));
+        assertEquals(address, rec.getValueForGivenAttrName(Address));
+      } else {
+        // even records should have gone
+        assertNull(rec);
+      }
+    }
     System.out.println("Test7 pass!");
-  }
-
-  @Test
-  public void unitTest8() {
-    String perfTestTableName = "perfTest";
-    String[] perfTestTableAttributes = new String[] {"attr1", "attr2"};
-    String[] perfTestTablePrimaryKeyAttributes = new String[] {"attr1"};
-
-    AttributeType[] perfTestTableAttrType = new AttributeType[] {AttributeType.INT, AttributeType.INT};
-    int numberOfRecords = 1000000;
-
-    assertEquals(StatusCode.SUCCESS, tableManager.createTable(perfTestTableName, perfTestTableAttributes, perfTestTableAttrType, perfTestTablePrimaryKeyAttributes));
-
-    Random generator = new Random(seed);
-    for (int i = 0; i < numberOfRecords; i++) {
-      Long randNum = generator.nextLong();
-      assertEquals(StatusCode.SUCCESS, records.insertRecord(perfTestTableName, new String[] {"attr1"}, new Object[]{randNum}, new String[] {"attr2"}, new Object[]{randNum}));
-    }
-
-    Cursor cursor;
-    long start, end;
-
-
-    start = System.currentTimeMillis();
-    generator = new Random(seed);
-    for (int i = 0; i < numberOfRecords; i++) {
-      Long randNum = generator.nextLong();
-      cursor = records.openCursor(perfTestTableName, "attr1", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
-      assertNotNull(records.getFirst(cursor));
-      records.abortCursor(cursor);
-    }
-    end = System.currentTimeMillis();
-    long elapsedTime = end - start;
-    System.out.println("Query " + numberOfRecords + " without index: " + elapsedTime);
-
-    // build the B+Tree index on attr2
-    assertEquals(StatusCode.SUCCESS, indexes.createIndex(perfTestTableName, "attr2", IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
-    start = System.currentTimeMillis();
-    generator = new Random(seed);
-    for (int i = 0; i < numberOfRecords; i++) {
-      Long randNum = generator.nextLong();
-      cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
-      assertNotNull(records.getFirst(cursor));
-      records.abortCursor(cursor);
-    }
-    end = System.currentTimeMillis();
-    elapsedTime = end - start;
-    System.out.println("Query with Non-clustered B+ Tree index: " + elapsedTime);
-
-    assertEquals(StatusCode.SUCCESS, indexes.removeIndex(perfTestTableName, "attr2"));
-    assertEquals(StatusCode.SUCCESS, indexes.createIndex(perfTestTableName, "attr2", IndexType.NON_CLUSTERED_HASH_INDEX));
-    start = System.currentTimeMillis();
-    generator = new Random(seed);
-    for (int i = 0; i < numberOfRecords; i++) {
-      Long randNum = generator.nextLong();
-      cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
-      assertNotNull(records.getFirst(cursor));
-      records.abortCursor(cursor);
-    }
-    end = System.currentTimeMillis();
-    elapsedTime = end - start;
-    System.out.println("Query with Non-clustered Hash index: " + elapsedTime);
-
-    System.out.println("Test8 pass!");
-
   }
 }

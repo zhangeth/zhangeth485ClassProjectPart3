@@ -20,7 +20,7 @@ public class TableMetadata {
   // A list contains names of the primary key attribute.
   private List<String> primaryKeys;
 
-  // Map from AttributeName to IndexType, empty if no index on any attribute,
+  // For part3: Map from AttributeName to IndexType, empty if no index on any attribute,
   private HashMap<String, IndexType> indexes;
 
   @Override

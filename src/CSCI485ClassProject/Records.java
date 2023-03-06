@@ -34,7 +34,8 @@ public interface Records {
    * @param attrValue the attribute value for the predicate
    * @param operator the operator used by the predicate
    * @param mode the mode of cursor: READ/READ_WRITE
-   * @param isUsingIndex for READ cursor, true indicates the search should use the index on the given attribute.
+   * @param isUsingIndex used in Part3
+   *    for READ cursor, true indicates the search should use the index on the given attribute.
    * @return Cursor
    */
   Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, Cursor.Mode mode, boolean isUsingIndex);
@@ -88,7 +89,7 @@ public interface Records {
    * Update the record that the cursor is pointing at, with new attribute values. Cursor must be in READ_WRITE mode.
    *
    * If the given attribute(s) do not exist, the attribute should be added to the table schema.
-   * If index structures are built on some attributes, they should also be updated
+   * Part3: If index structures are built on some attributes, they should also be updated
    * @param cursor the target cursor
    * @param attrNames the attribute names
    * @param attrValues the corresponding attribute values
@@ -99,7 +100,7 @@ public interface Records {
   /**
    * Delete the record that the cursor is pointing at.
    *
-   * If index type is specified when opening the cursor, the corresponding index record should also be deleted
+   * Part3: If index type is specified when opening the cursor, the corresponding index record should also be deleted
    * @param cursor the target cursor
    * @return
    */
@@ -107,7 +108,7 @@ public interface Records {
 
 
   /**
-   * Commit changes made by the cursor to FDB, if cursor is in READ mode, no changes are allowed to persist and an error should be returned.
+   * Commit changes made by the cursor to FDB.
    * @param cursor the target cursor
    * @return StatusCode
    */
@@ -123,7 +124,7 @@ public interface Records {
   /**
    * Delete the record with given attribute names and values in a table.
    *
-   * If an index exists on the attribute referenced by updateRecord, the index should also be updated
+   * Part3: If an index exists on the attribute referenced by updateRecord, the index should also be updated
    *
    * @param tableName the target table name
    * @param attrNames the attribute names
