@@ -17,7 +17,7 @@ public class RecordsImpl implements Records{
   }
 
   @Override
-  public Cursor openCursor(String tableName, Cursor.Mode mode, boolean isUsingIndex) {
+  public Cursor openCursor(String tableName, Cursor.Mode mode) {
     return null;
   }
 
@@ -57,7 +57,7 @@ public class RecordsImpl implements Records{
   }
 
   @Override
-  public StatusCode closeCursor(Cursor cursor) {
+  public StatusCode abortCursor(Cursor cursor) {
     return null;
   }
 

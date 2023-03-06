@@ -84,7 +84,7 @@ public class Part2Test {
 
   @Test
   public void unitTest2() {
-    Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_ONLY, false);
+    Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_ONLY);
     assertNotNull(cursor);
 
     List<Record> employRecords = new ArrayList<>();
@@ -113,7 +113,7 @@ public class Part2Test {
       expectRecords.add(rec);
     }
 
-    records.closeCursor(cursor);
+    records.abortCursor(cursor);
     // verify the initial records is inserted
     assertEquals(initialNumberOfRecords, employRecords.size());
     assertEquals(true, expectRecords.containsAll(employRecords));
@@ -178,7 +178,7 @@ public class Part2Test {
     for (int i = 1; i < 10; i++) {
       employSalRecord.add(records.getNext(cursor));
     }
-    records.closeCursor(cursor);
+    records.abortCursor(cursor);
 
     // verify the record is correct
     Random generator = new Random(updateSeed1);
@@ -212,7 +212,7 @@ public class Part2Test {
     for (int i = 1; i < 10; i++) {
       employSalRecord.add(records.getNext(cursor));
     }
-    records.closeCursor(cursor);
+    records.abortCursor(cursor);
 
     // verify the record is correct
     Random generator = new Random(updateSeed1);
@@ -248,7 +248,7 @@ public class Part2Test {
       assertEquals(salary, record.getValueForGivenAttrName("Salary"));
       assertEquals(name, record.getValueForGivenAttrName("Name"));
 
-      records.closeCursor(cursor);
+      records.abortCursor(cursor);
     }
 
     // insert records to see if the index structure updated
@@ -307,7 +307,7 @@ public class Part2Test {
       } else {
         assertNull(rec);
       }
-      records.closeCursor(cursor);
+      records.abortCursor(cursor);
     }
 
     System.out.println("Test5 pass!");
@@ -387,7 +387,7 @@ public class Part2Test {
       } else {
         assertNull(rec);
       }
-      records.closeCursor(cursor);
+      records.abortCursor(cursor);
     }
 
     // update the even number salary to be odd number salary
@@ -427,7 +427,7 @@ public class Part2Test {
       } else {
         assertNull(rec);
       }
-      records.closeCursor(cursor);
+      records.abortCursor(cursor);
     }
     System.out.println("Test6 pass!");
   }
@@ -470,7 +470,7 @@ public class Part2Test {
       Long randNum = generator.nextLong();
       cursor = records.openCursor(perfTestTableName, "attr1", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, false);
       assertNotNull(records.getFirst(cursor));
-      records.closeCursor(cursor);
+      records.abortCursor(cursor);
     }
     end = System.currentTimeMillis();
     long elapsedTime = end - start;
@@ -484,7 +484,7 @@ public class Part2Test {
       Long randNum = generator.nextLong();
       cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
       assertNotNull(records.getFirst(cursor));
-      records.closeCursor(cursor);
+      records.abortCursor(cursor);
     }
     end = System.currentTimeMillis();
     elapsedTime = end - start;
@@ -498,7 +498,7 @@ public class Part2Test {
       Long randNum = generator.nextLong();
       cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
       assertNotNull(records.getFirst(cursor));
-      records.closeCursor(cursor);
+      records.abortCursor(cursor);
     }
     end = System.currentTimeMillis();
     elapsedTime = end - start;

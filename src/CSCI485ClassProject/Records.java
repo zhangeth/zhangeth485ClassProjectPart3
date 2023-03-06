@@ -1,7 +1,6 @@
 package CSCI485ClassProject;
 
 import CSCI485ClassProject.models.ComparisonOperator;
-import CSCI485ClassProject.models.IndexType;
 import CSCI485ClassProject.models.Record;
 
 /**
@@ -15,7 +14,7 @@ public interface Records {
    *
    * Given primary keys and values must match the specification in TableMetadata.
    *
-   * If given attributes does not exist in the schema, attributes will be added to the schema.
+   * If given attributes does not exist in the schema, attributes should be added to the schema.
    *
    * @param tableName the target tableName
    * @param primaryKeys primary keys
@@ -28,27 +27,31 @@ public interface Records {
 
 
   /**
-   * Open a cursor in READ_WRITE/WRITE_ONLY mode that hooks to the certain attribute in a table.
+   * Open a cursor that iterates a table with a certain predicate.
    *
    * @param tableName the target tableName
    * @param attrName the target attribute Name
    * @param attrValue the attribute value for the predicate
    * @param operator the operator used by the predicate
-   * @param mode the mode of the cursor
+   * @param mode the mode of cursor: READ_ONLY/READ_WRITE/WRITE_ONLY
+   * @param isUsingIndex for READ_ONLY cursor, true indicates the search should use the index on the given attribute.
    * @return Cursor
    */
   Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, Cursor.Mode mode, boolean isUsingIndex);
 
   /**
-   * Open a cursor in READ_WRITE/WRITE_ONLY mode without any predicate
+   * Open a cursor that iterates a table with given mode.
    *
-   * @param tableName
-   * @return
+   * @param tableName the target table's name
+   * @param mode the mode of cursor: READ_ONLY/READ_WRITE/WRITE_ONLY
+   * @return the cursor
    */
-  Cursor openCursor(String tableName, Cursor.Mode mode, boolean isUsingIndex);
+  Cursor openCursor(String tableName, Cursor.Mode mode);
 
   /**
    * Seek the cursor to the first qualified record.
+   *
+   * Once the cursor is initialized by getFirst, it can ONLY iterate records using getNext.
    * @param cursor the target cursor
    * @return the first qualified record
    */
@@ -56,6 +59,8 @@ public interface Records {
 
   /**
    * Seek the cursor to the last qualified record.
+   *
+   * Once the cursor is initialized by getLast, it can ONLY iterate records using getPrevious
    * @param cursor the target cursor
    * @return the last qualified record
    */
@@ -63,6 +68,8 @@ public interface Records {
 
   /**
    * Move the cursor to the next valid record and return. If it is already at the last record, return the EOF
+   *
+   * getNext can only be called with cursor initialized by getFirst.
    * @param cursor the cursor to move next
    * @return Record if the next record exists, otherwise return null
    */
@@ -70,13 +77,15 @@ public interface Records {
 
   /**
    * Move the cursor to the previous valid record and return. If it is already at the first record, return the EOF
+   *
+   * getPrevious can only be called with cursor initialized by getLast
    * @param cursor the cursor to move previous
    * @return Record if the previous record exists, otherwise return null
    */
   Record getPrevious(Cursor cursor);
 
   /**
-   * Update the record that the cursor is pointing at, with new attribute values.
+   * Update the record that the cursor is pointing at, with new attribute values. Cursor must be in READ_WRITE/WRITE_ONLY mode.
    *
    * If the given attribute(s) do not exist, the attribute should be added to the table schema.
    * If index structures are built on some attributes, they should also be updated
@@ -91,30 +100,30 @@ public interface Records {
    * Delete the record that the cursor is pointing at.
    *
    * If index type is specified when opening the cursor, the corresponding index record should also be deleted
-   * @param cursor
+   * @param cursor the target cursor
    * @return
    */
   StatusCode deleteRecord(Cursor cursor);
 
 
   /**
-   * Commit the writes of cursor, cursor must be in READ_WRITE or WRITE_ONLY mode
+   * Commit changes made by the cursor to FDB, if cursor is in READ_ONLY mode, no changes are allowed to persist and an error should be returned.
    * @param cursor the target cursor
    * @return StatusCode
    */
   StatusCode commitCursor(Cursor cursor);
 
   /**
-   * Close the cursor
+   * Abort the given cursor. Any changes made by the cursor will be aborted
    * @param cursor the target cursor
    * @return StatusCode
    */
-  StatusCode closeCursor(Cursor cursor);
+  StatusCode abortCursor(Cursor cursor);
 
   /**
    * Delete the record with given attribute names and values in a table.
    *
-   * If indexes are built on the table, index records should also be modified accordingly.
+   * If an index exists on the attribute referenced by updateRecord, the index should also be updated
    *
    * @param tableName the target table name
    * @param attrNames the attribute names
