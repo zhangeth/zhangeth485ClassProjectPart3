@@ -84,7 +84,8 @@ public class Part2Test {
 
   @Test
   public void unitTest2() {
-    Cursor cursor = records.openReadOnlyCursor(EmployeeTableName);
+    Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_ONLY, false);
+    assertNotNull(cursor);
 
     List<Record> employRecords = new ArrayList<>();
     employRecords.add(records.getFirst(cursor));
@@ -148,7 +149,7 @@ public class Part2Test {
       long salary = i+1;
       long ssn = i + initialNumberOfRecords;
       String name = "Name" + randNum;
-      cursor = records.openReadOnlyCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, IndexType.NO_INDEX);
+      cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, false);
 
       Record record = records.getFirst(cursor);
       assertNotNull(record);
@@ -169,7 +170,7 @@ public class Part2Test {
     assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, "Salary", IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
 
     int offset = 1;
-    Cursor cursor = records.openReadOnlyCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX);
+    Cursor cursor = records.openCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ_ONLY, true);
 
     // get 10 records with Salary >= 1 using cursor
     List<Record> employSalRecord = new ArrayList<>();
@@ -203,7 +204,7 @@ public class Part2Test {
   @Test
   public void unitTest4() {
     int offset = 4000;
-    Cursor cursor = records.openReadOnlyCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX);
+    Cursor cursor = records.openCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ_ONLY, true);
 
     // get 10 records with Salary >= 4000 using cursor
     List<Record> employSalRecord = new ArrayList<>();
@@ -239,7 +240,7 @@ public class Part2Test {
       long ssn = i + initialNumberOfRecords;
       String name = "Name" + randNum;
 
-      cursor = records.openReadOnlyCursor(EmployeeTableName, "Name", name, ComparisonOperator.EQUAL_TO, IndexType.NON_CLUSTERED_HASH_INDEX);
+      cursor = records.openCursor(EmployeeTableName, "Name", name, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
       Record record = records.getFirst(cursor);
 
       assertNotNull(record);
@@ -282,7 +283,7 @@ public class Part2Test {
         continue;
       }
       // delete the odd Salary records
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_WRITE);
+      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_WRITE, true);
       Record rec = records.getFirst(cursor);
 
       assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
@@ -297,7 +298,7 @@ public class Part2Test {
       long ssn = i + initialNumberOfRecords;
       long salary = i+1;
 
-      Cursor cursor = records.openReadOnlyCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX);
+      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
       Record rec = records.getFirst(cursor);
       if (salary % 2 == 0) {
         assertNotNull(rec);
@@ -338,7 +339,7 @@ public class Part2Test {
       long salary = i+1;
       String name = "Name" + randNum;
 
-      Cursor cursor = records.openReadOnlyCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX);
+      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
       Record rec = records.getFirst(cursor);
       assertNotNull(rec);
       assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
@@ -358,7 +359,7 @@ public class Part2Test {
         assertEquals(StatusCode.DATA_RECORD_CREATION_RECORD_ALREADY_EXISTS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, new Object[]{ssn}, new String[]{"Name", "Salary"}, new Object[] {name, salary}));
       } else {
         // delete the odd numbered records
-        Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_WRITE);
+        Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_WRITE, true);
         Record rec = records.getFirst(cursor);
 
         assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
@@ -377,7 +378,7 @@ public class Part2Test {
       long ssn = i + initialNumberOfRecords;
       long salary = i+1;
 
-      Cursor cursor = records.openReadOnlyCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX);
+      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
       Record rec = records.getFirst(cursor);
       if (salary % 2 == 0) {
         assertNotNull(rec);
@@ -398,7 +399,7 @@ public class Part2Test {
       String name = "Name" + randNum;
 
       if (salary % 2 == 0) {
-        Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_WRITE);
+        Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_WRITE, true);
         Record rec = records.getFirst(cursor);
 
         assertNotNull(rec);
@@ -417,7 +418,7 @@ public class Part2Test {
       long ssn = i + initialNumberOfRecords;
       long salary = i+1;
 
-      Cursor cursor = records.openReadOnlyCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX);
+      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
       Record rec = records.getFirst(cursor);
       if (salary % 2 == 1) {
         assertNotNull(rec);
@@ -434,6 +435,8 @@ public class Part2Test {
   @Test
   public void unitTest7() {
     assertEquals(StatusCode.INDEX_ALREADY_EXISTS_ON_ATTRIBUTE, indexes.createIndex(EmployeeTableName, "Salary", IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
+    assertEquals(StatusCode.INDEX_NOT_FOUND, indexes.removeIndex(EmployeeTableName, "Salary"));
+    assertEquals(StatusCode.INDEX_NOT_FOUND, indexes.removeIndex(EmployeeTableName, "SSN"));
     assertEquals(StatusCode.SUCCESS, indexes.removeIndex(EmployeeTableName, "Salary"));
     assertEquals(StatusCode.SUCCESS, indexes.removeIndex(EmployeeTableName, "Name"));
 
@@ -465,7 +468,7 @@ public class Part2Test {
     generator = new Random(seed);
     for (int i = 0; i < numberOfRecords; i++) {
       Long randNum = generator.nextLong();
-      cursor = records.openReadOnlyCursor(perfTestTableName, "attr1", randNum, ComparisonOperator.EQUAL_TO, IndexType.NO_INDEX);
+      cursor = records.openCursor(perfTestTableName, "attr1", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, false);
       assertNotNull(records.getFirst(cursor));
       records.closeCursor(cursor);
     }
@@ -479,7 +482,7 @@ public class Part2Test {
     generator = new Random(seed);
     for (int i = 0; i < numberOfRecords; i++) {
       Long randNum = generator.nextLong();
-      cursor = records.openReadOnlyCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, IndexType.NO_INDEX);
+      cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
       assertNotNull(records.getFirst(cursor));
       records.closeCursor(cursor);
     }
@@ -493,7 +496,7 @@ public class Part2Test {
     generator = new Random(seed);
     for (int i = 0; i < numberOfRecords; i++) {
       Long randNum = generator.nextLong();
-      cursor = records.openReadOnlyCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, IndexType.NON_CLUSTERED_HASH_INDEX);
+      cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
       assertNotNull(records.getFirst(cursor));
       records.closeCursor(cursor);
     }
