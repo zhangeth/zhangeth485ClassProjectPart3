@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNull;
 public class Part2Test {
 
   public static String EmployeeTableName = "Employee";
-  public static String[] EmployeeTableAttributeNames = new String[]{"SSN", "Name"};
+  public static String[] EmployeeTableAttributeNames = new String[]{"SSN", "Name", "Email", "Age", "Address"};
   public static AttributeType[] EmployeeTableAttributeTypes =
       new AttributeType[]{AttributeType.INT, AttributeType.VARCHAR};
   public static String[] EmployeeTablePKAttributes = new String[]{"SSN"};
