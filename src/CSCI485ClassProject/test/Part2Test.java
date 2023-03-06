@@ -84,7 +84,7 @@ public class Part2Test {
 
   @Test
   public void unitTest2() {
-    Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_ONLY);
+    Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ);
     assertNotNull(cursor);
 
     List<Record> employRecords = new ArrayList<>();
@@ -149,7 +149,7 @@ public class Part2Test {
       long salary = i+1;
       long ssn = i + initialNumberOfRecords;
       String name = "Name" + randNum;
-      cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, false);
+      cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
 
       Record record = records.getFirst(cursor);
       assertNotNull(record);
@@ -170,7 +170,7 @@ public class Part2Test {
     assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, "Salary", IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
 
     int offset = 1;
-    Cursor cursor = records.openCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ_ONLY, true);
+    Cursor cursor = records.openCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ, true);
 
     // get 10 records with Salary >= 1 using cursor
     List<Record> employSalRecord = new ArrayList<>();
@@ -204,7 +204,7 @@ public class Part2Test {
   @Test
   public void unitTest4() {
     int offset = 4000;
-    Cursor cursor = records.openCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ_ONLY, true);
+    Cursor cursor = records.openCursor(EmployeeTableName, "Salary", offset, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ, true);
 
     // get 10 records with Salary >= 4000 using cursor
     List<Record> employSalRecord = new ArrayList<>();
@@ -240,7 +240,7 @@ public class Part2Test {
       long ssn = i + initialNumberOfRecords;
       String name = "Name" + randNum;
 
-      cursor = records.openCursor(EmployeeTableName, "Name", name, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
+      cursor = records.openCursor(EmployeeTableName, "Name", name, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
       Record record = records.getFirst(cursor);
 
       assertNotNull(record);
@@ -298,7 +298,7 @@ public class Part2Test {
       long ssn = i + initialNumberOfRecords;
       long salary = i+1;
 
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
+      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
       Record rec = records.getFirst(cursor);
       if (salary % 2 == 0) {
         assertNotNull(rec);
@@ -339,7 +339,7 @@ public class Part2Test {
       long salary = i+1;
       String name = "Name" + randNum;
 
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
+      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
       Record rec = records.getFirst(cursor);
       assertNotNull(rec);
       assertEquals(ssn, rec.getValueForGivenAttrName("SSN"));
@@ -378,7 +378,7 @@ public class Part2Test {
       long ssn = i + initialNumberOfRecords;
       long salary = i+1;
 
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
+      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
       Record rec = records.getFirst(cursor);
       if (salary % 2 == 0) {
         assertNotNull(rec);
@@ -418,7 +418,7 @@ public class Part2Test {
       long ssn = i + initialNumberOfRecords;
       long salary = i+1;
 
-      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
+      Cursor cursor = records.openCursor(EmployeeTableName, "Salary", salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
       Record rec = records.getFirst(cursor);
       if (salary % 2 == 1) {
         assertNotNull(rec);
@@ -468,7 +468,7 @@ public class Part2Test {
     generator = new Random(seed);
     for (int i = 0; i < numberOfRecords; i++) {
       Long randNum = generator.nextLong();
-      cursor = records.openCursor(perfTestTableName, "attr1", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, false);
+      cursor = records.openCursor(perfTestTableName, "attr1", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
       assertNotNull(records.getFirst(cursor));
       records.abortCursor(cursor);
     }
@@ -482,7 +482,7 @@ public class Part2Test {
     generator = new Random(seed);
     for (int i = 0; i < numberOfRecords; i++) {
       Long randNum = generator.nextLong();
-      cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
+      cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
       assertNotNull(records.getFirst(cursor));
       records.abortCursor(cursor);
     }
@@ -496,7 +496,7 @@ public class Part2Test {
     generator = new Random(seed);
     for (int i = 0; i < numberOfRecords; i++) {
       Long randNum = generator.nextLong();
-      cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ_ONLY, true);
+      cursor = records.openCursor(perfTestTableName, "attr2", randNum, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
       assertNotNull(records.getFirst(cursor));
       records.abortCursor(cursor);
     }

@@ -1,7 +1,6 @@
 package CSCI485ClassProject;
 
 import CSCI485ClassProject.models.ComparisonOperator;
-import CSCI485ClassProject.models.IndexType;
 import CSCI485ClassProject.models.Record;
 
 public class RecordsImpl implements Records{

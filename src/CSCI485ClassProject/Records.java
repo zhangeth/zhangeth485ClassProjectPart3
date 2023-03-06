@@ -33,8 +33,8 @@ public interface Records {
    * @param attrName the target attribute Name
    * @param attrValue the attribute value for the predicate
    * @param operator the operator used by the predicate
-   * @param mode the mode of cursor: READ_ONLY/READ_WRITE/WRITE_ONLY
-   * @param isUsingIndex for READ_ONLY cursor, true indicates the search should use the index on the given attribute.
+   * @param mode the mode of cursor: READ/READ_WRITE/WRITE
+   * @param isUsingIndex for READ cursor, true indicates the search should use the index on the given attribute.
    * @return Cursor
    */
   Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, Cursor.Mode mode, boolean isUsingIndex);
@@ -43,7 +43,7 @@ public interface Records {
    * Open a cursor that iterates a table with given mode.
    *
    * @param tableName the target table's name
-   * @param mode the mode of cursor: READ_ONLY/READ_WRITE/WRITE_ONLY
+   * @param mode the mode of cursor: READ/READ_WRITE/WRITE
    * @return the cursor
    */
   Cursor openCursor(String tableName, Cursor.Mode mode);
@@ -85,7 +85,7 @@ public interface Records {
   Record getPrevious(Cursor cursor);
 
   /**
-   * Update the record that the cursor is pointing at, with new attribute values. Cursor must be in READ_WRITE/WRITE_ONLY mode.
+   * Update the record that the cursor is pointing at, with new attribute values. Cursor must be in READ_WRITE/WRITE mode.
    *
    * If the given attribute(s) do not exist, the attribute should be added to the table schema.
    * If index structures are built on some attributes, they should also be updated
@@ -107,7 +107,7 @@ public interface Records {
 
 
   /**
-   * Commit changes made by the cursor to FDB, if cursor is in READ_ONLY mode, no changes are allowed to persist and an error should be returned.
+   * Commit changes made by the cursor to FDB, if cursor is in READ mode, no changes are allowed to persist and an error should be returned.
    * @param cursor the target cursor
    * @return StatusCode
    */
