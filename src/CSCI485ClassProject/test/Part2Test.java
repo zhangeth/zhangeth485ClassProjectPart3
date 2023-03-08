@@ -188,7 +188,7 @@ public class Part2Test {
   @Test
   public void unitTest4() {
     // use cursor to select the record with given name, and verify the correctness
-    Cursor cursor = records.openCursor(EmployeeTableName, Salary, 100, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
+    Cursor cursor = records.openCursor(EmployeeTableName, Salary, 100, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ, false);
 
     boolean isCursorInitialized = false;
     for (int i = initialNumberOfRecords; i<initialNumberOfRecords + updatedNumberOfRecords; i++) {
