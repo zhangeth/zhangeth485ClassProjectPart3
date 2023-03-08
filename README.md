@@ -16,6 +16,6 @@ Once the migration is finished, you can verify it by running the unit test of Pa
     - `test`: package for unit tests
     
 ## Codes to implement
-Under `src/CSCI485ClassProject`, there are three classes to finish:
-- `Cursor`: implementation of a class `Cursor`
+Under `src/CSCI485ClassProject`, there are 2 classes to finish:
+- `Cursor`: `Cursor` implementation
 - `RecordsImpl`: implementation of an interface class `Records`
