@@ -25,9 +25,21 @@ public interface Records {
    */
   StatusCode insertRecord(String tableName, String[] primaryKeys, Object[] primaryKeysValues, String[] attrNames, Object[] attrValues);
 
+  /**
+   * Open a cursor that iterates a table with given mode.
+   *
+   * Order of the records follow the primary key values' descending order.
+   *
+   * @param tableName the target table's name
+   * @param mode the mode of cursor: READ/READ_WRITE
+   * @return the cursor
+   */
+  Cursor openCursor(String tableName, Cursor.Mode mode);
 
   /**
    * Open a cursor that iterates a table with a certain predicate.
+   *
+   * Order of the records follow the primary key values' descending order.
    *
    * @param tableName the target tableName
    * @param attrName the target attribute Name
@@ -39,15 +51,6 @@ public interface Records {
    * @return Cursor
    */
   Cursor openCursor(String tableName, String attrName, Object attrValue, ComparisonOperator operator, Cursor.Mode mode, boolean isUsingIndex);
-
-  /**
-   * Open a cursor that iterates a table with given mode.
-   *
-   * @param tableName the target table's name
-   * @param mode the mode of cursor: READ/READ_WRITE
-   * @return the cursor
-   */
-  Cursor openCursor(String tableName, Cursor.Mode mode);
 
   /**
    * Seek the cursor to the first qualified record.
@@ -102,7 +105,7 @@ public interface Records {
    *
    * Part3: If index type is specified when opening the cursor, the corresponding index record should also be deleted
    * @param cursor the target cursor
-   * @return
+   * @return StatusCode
    */
   StatusCode deleteRecord(Cursor cursor);
 
