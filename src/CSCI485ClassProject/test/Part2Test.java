@@ -106,7 +106,7 @@ public class Part2Test {
     assertEquals(StatusCode.DATA_RECORD_PRIMARY_KEYS_UNMATCHED, records.insertRecord(EmployeeTableName, new String[]{}, new String[]{}, new String[]{"Name"}, new Object[]{"Bob"}));
     assertEquals(StatusCode.DATA_RECORD_CREATION_ATTRIBUTE_TYPE_UNMATCHED, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, new Object[]{initialNumberOfRecords+1}, new String[]{"Name"}, new Object[]{12345}));
 
-    System.out.println("Test1 pass!");
+    System.out.println("Test1 passed!");
   }
 
   /**
@@ -141,7 +141,7 @@ public class Part2Test {
       assertEquals(getAddress(ssn), rec.getValueForGivenAttrName(Address));
       ssn++;
     }
-    System.out.println("Test2 pass!");
+    System.out.println("Test2 passed!");
   }
 
   /**
@@ -179,7 +179,7 @@ public class Part2Test {
     HashMap<String, TableMetadata> tables = tableManager.listTables();
     assertEquals(1, tables.size());
     assertEquals(expectedEmployeeTableSchema, tables.get(EmployeeTableName));
-    System.out.println("Test3 pass!");
+    System.out.println("Test3 passed!");
   }
 
   /**
@@ -214,7 +214,7 @@ public class Part2Test {
       assertEquals(address, record.getValueForGivenAttrName(Address));
     }
     assertNull(records.getNext(cursor));
-    System.out.println("Test4 pass!");
+    System.out.println("Test4 passed!");
   }
 
   /**
@@ -247,7 +247,7 @@ public class Part2Test {
 
       assertNull(records.getNext(cursor));
     }
-    System.out.println("Test5 pass!");
+    System.out.println("Test5 passed!");
   }
 
   /**
@@ -305,7 +305,7 @@ public class Part2Test {
       }
     }
 
-    System.out.println("Test6 pass!");
+    System.out.println("Test6 passed!");
   }
 
   /**
@@ -407,6 +407,6 @@ public class Part2Test {
         assertNull(rec);
       }
     }
-    System.out.println("Test7 pass!");
+    System.out.println("Test7 passed!");
   }
 }
