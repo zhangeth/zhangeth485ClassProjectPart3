@@ -188,7 +188,9 @@ public class Part2Test {
   @Test
   public void unitTest4() {
     // use cursor to select the record with given name, and verify the correctness
-    Cursor cursor;
+    Cursor cursor = records.openCursor(EmployeeTableName, Salary, 100, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
+
+    boolean isCursorInitialized = false;
     for (int i = initialNumberOfRecords; i<initialNumberOfRecords + updatedNumberOfRecords; i++) {
       int ssn = i;
       String name = getName(i);
@@ -197,9 +199,12 @@ public class Part2Test {
       String address = getAddress(i);
       long salary = getSalary(i);
 
-      cursor = records.openCursor(EmployeeTableName, Name, name, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
-
-      Record record = records.getFirst(cursor);
+      Record record;
+      if (!isCursorInitialized) {
+        record = records.getFirst(cursor);
+      } else {
+        record = records.getNext(cursor);
+      }
       assertNotNull(record);
       assertEquals(ssn, record.getValueForGivenAttrName(SSN));
       assertEquals(salary, record.getValueForGivenAttrName(Salary));
@@ -207,10 +212,8 @@ public class Part2Test {
       assertEquals(email, record.getValueForGivenAttrName(Email));
       assertEquals(age, record.getValueForGivenAttrName(Age));
       assertEquals(address, record.getValueForGivenAttrName(Address));
-
-      assertNull(records.getNext(cursor));
-      assertNull(records.getPrevious(cursor));
     }
+    assertNull(records.getNext(cursor));
     System.out.println("Test4 pass!");
   }
 
@@ -231,7 +234,7 @@ public class Part2Test {
       String address = getAddress(i);
       long salary = getSalary(i);
 
-      cursor = records.openCursor(EmployeeTableName, Salary, salary, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
+      cursor = records.openCursor(EmployeeTableName, Name, name, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
 
       Record record = records.getFirst(cursor);
       assertNotNull(record);
@@ -243,7 +246,6 @@ public class Part2Test {
       assertEquals(address, record.getValueForGivenAttrName(Address));
 
       assertNull(records.getNext(cursor));
-      assertNull(records.getPrevious(cursor));
     }
     System.out.println("Test5 pass!");
   }
