@@ -226,7 +226,7 @@ public class Part2Test {
     int ssnStart = 30;
     int ssnEnd = 40;
     Cursor cursor;
-    for (int i = 30; i<=ssnEnd; i++) {
+    for (int i = ssnStart; i<=ssnEnd; i++) {
       int ssn = i;
       String name = getName(i);
       String email = getEmail(i);
@@ -247,6 +247,7 @@ public class Part2Test {
 
       assertNull(records.getNext(cursor));
     }
+
     System.out.println("Test5 passed!");
   }
 

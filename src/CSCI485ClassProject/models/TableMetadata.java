@@ -5,8 +5,10 @@ import CSCI485ClassProject.StatusCode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -18,7 +20,7 @@ public class TableMetadata {
   private HashMap<String, AttributeType> attributes;
 
   // A list contains names of the primary key attribute.
-  private List<String> primaryKeys;
+  private Set<String> primaryKeys;
 
   @Override
   public boolean equals(Object o) {
@@ -35,7 +37,7 @@ public class TableMetadata {
 
   public TableMetadata() {
     attributes = new HashMap<>();
-    primaryKeys = new ArrayList<>();
+    primaryKeys = new HashSet<>();
   }
 
   public TableMetadata(String[] attributeNames, AttributeType[] attributeTypes, String[] primaryKeys) {
@@ -43,7 +45,8 @@ public class TableMetadata {
     for (int i = 0; i < attributeTypes.length; i++) {
       attributes.put(attributeNames[i], attributeTypes[i]);
     }
-    this.primaryKeys = Arrays.asList(primaryKeys);
+    this.primaryKeys = new HashSet<>();
+    this.primaryKeys.addAll(Arrays.asList(primaryKeys));
   }
 
   public boolean doesAttributeExist(String attributeName) {
@@ -63,7 +66,7 @@ public class TableMetadata {
   }
 
   public List<String> getPrimaryKeys() {
-    return primaryKeys;
+    return new ArrayList<>(primaryKeys);
   }
 
   public StatusCode setPrimaryKeys(List<String> primaryKeys) {
@@ -73,7 +76,7 @@ public class TableMetadata {
       }
     }
 
-    this.primaryKeys = primaryKeys;
+    this.primaryKeys.addAll(primaryKeys);
     return StatusCode.SUCCESS;
   }
 
