@@ -19,3 +19,19 @@ Once finished, you can verify it by running the unit test of Part1.
 Under `src/CSCI485ClassProject`, there are 2 classes to finish:
 - `Cursor`: `Cursor` implementation
 - `RecordsImpl`: implementation of an interface class `Records`
+
+## Run Tests on macOS/Linux using `make`
+
+If you are developing in `macOS/Linux` environment(recommended), we provide `Makefile` for you to run tests quickly.
+
+To run tests of part1, use command
+```shell
+make part1Test
+```
+
+To run tests of part2, use command
+```shell
+make part2Test
+```
+
+As you may have different project structures, Makefile may not work in your implementation. In this case, you can change the `sources` variable in Makefile accordingly.
