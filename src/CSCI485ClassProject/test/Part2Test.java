@@ -39,7 +39,7 @@ public class Part2Test {
   public static String[] EmployeeTablePKAttributes = new String[]{"SSN"};
 
 
-  public static int initialNumberOfRecords = 100;
+  public static int initialNumberOfRecords = 10;
   public static int updatedNumberOfRecords = initialNumberOfRecords / 2;
 
   public static int numberOfRecords = 0;
@@ -47,23 +47,23 @@ public class Part2Test {
   private TableManager tableManager;
   private Records records;
 
-  private String getName(int i) {
+  private String getName(long i) {
     return "Name" + i;
   }
 
-  private String getEmail(int i) {
+  private String getEmail(long i) {
     return "ABCDEFGH" + i + "@usc.edu";
   }
 
-  private int getAge(int i) {
+  private long getAge(long i) {
     return (i+25)%90;
   }
 
-  private String getAddress(int i) {
+  private String getAddress(long i) {
     return "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + i;
   }
 
-  private long getSalary(int i) {
+  private long getSalary(long i) {
     return i + 100;
   }
 
@@ -90,10 +90,10 @@ public class Part2Test {
     assertEquals(EmployeeTable, tables.get(EmployeeTableName));
 
     for (int i = 0; i<initialNumberOfRecords; i++) {
-      int ssn = i;
+      long ssn = i;
       String name = getName(i);
       String email = getEmail(i);
-      int age = getAge(i);
+      long age = getAge(i);
       String address = getAddress(i);
 
       Object[] primaryKeyVal = new Object[] {ssn};
@@ -121,7 +121,7 @@ public class Part2Test {
     Record rec = records.getFirst(cursor);
     // verify the first record
     assertNotNull(rec);
-    int ssn = 0;
+    long ssn = 0;
     assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
     assertEquals(getName(ssn), rec.getValueForGivenAttrName(Name));
     assertEquals(getEmail(ssn), rec.getValueForGivenAttrName(Email));
@@ -141,6 +141,36 @@ public class Part2Test {
       assertEquals(getAddress(ssn), rec.getValueForGivenAttrName(Address));
       ssn++;
     }
+
+    assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
+    assertEquals(ssn, initialNumberOfRecords);
+
+    // use getLast to verify again
+    cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ);
+    assertNotNull(cursor);
+    rec = records.getLast(cursor);
+    ssn--;
+    assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
+    assertEquals(getName(ssn), rec.getValueForGivenAttrName(Name));
+    assertEquals(getEmail(ssn), rec.getValueForGivenAttrName(Email));
+    assertEquals(getAge(ssn), rec.getValueForGivenAttrName(Age));
+    assertEquals(getAddress(ssn), rec.getValueForGivenAttrName(Address));
+    ssn--;
+
+    while (true) {
+      rec = records.getPrevious(cursor);
+      if (rec == null) {
+        break;
+      }
+      assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
+      assertEquals(getName(ssn), rec.getValueForGivenAttrName(Name));
+      assertEquals(getEmail(ssn), rec.getValueForGivenAttrName(Email));
+      assertEquals(getAge(ssn), rec.getValueForGivenAttrName(Age));
+      assertEquals(getAddress(ssn), rec.getValueForGivenAttrName(Address));
+      ssn--;
+    }
+
+    assertEquals(-1, ssn);
     System.out.println("Test2 passed!");
   }
 
@@ -151,10 +181,10 @@ public class Part2Test {
   public void unitTest3() {
     // insert records with new column "Salary"
     for (int i = initialNumberOfRecords; i<initialNumberOfRecords + updatedNumberOfRecords; i++) {
-      int ssn = i;
+      long ssn = i;
       String name = getName(i);
       String email = getEmail(i);
-      int age = getAge(i);
+      long age = getAge(i);
       String address = getAddress(i);
       long salary = getSalary(i);
 
@@ -192,16 +222,17 @@ public class Part2Test {
 
     boolean isCursorInitialized = false;
     for (int i = initialNumberOfRecords; i<initialNumberOfRecords + updatedNumberOfRecords; i++) {
-      int ssn = i;
+      long ssn = i;
       String name = getName(i);
       String email = getEmail(i);
-      int age = getAge(i);
+      long age = getAge(i);
       String address = getAddress(i);
       long salary = getSalary(i);
 
       Record record;
       if (!isCursorInitialized) {
         record = records.getFirst(cursor);
+        isCursorInitialized = true;
       } else {
         record = records.getNext(cursor);
       }
@@ -222,15 +253,14 @@ public class Part2Test {
    */
   @Test
   public void unitTest5() {
-    // use cursor to select the record with given salary, and verify the correctness
-    int ssnStart = 30;
-    int ssnEnd = 40;
+    // use cursor to select the record with given name, and verify the correctness
+
     Cursor cursor;
-    for (int i = ssnStart; i<=ssnEnd; i++) {
-      int ssn = i;
+    for (int i = 0; i < initialNumberOfRecords + updatedNumberOfRecords; i++) {
+      long ssn = i;
       String name = getName(i);
       String email = getEmail(i);
-      int age = getAge(i);
+      long age = getAge(i);
       String address = getAddress(i);
       long salary = getSalary(i);
 
@@ -239,12 +269,15 @@ public class Part2Test {
       Record record = records.getFirst(cursor);
       assertNotNull(record);
       assertEquals(ssn, record.getValueForGivenAttrName(SSN));
-      assertEquals(salary, record.getValueForGivenAttrName(Salary));
       assertEquals(name, record.getValueForGivenAttrName(Name));
       assertEquals(email, record.getValueForGivenAttrName(Email));
       assertEquals(age, record.getValueForGivenAttrName(Age));
       assertEquals(address, record.getValueForGivenAttrName(Address));
 
+      // those records with salary
+      if (i >= initialNumberOfRecords) {
+        assertEquals(salary, record.getValueForGivenAttrName(Salary));
+      }
       assertNull(records.getNext(cursor));
     }
 
@@ -283,10 +316,10 @@ public class Part2Test {
 
     // verify that odd records are gone
     for (int i = 0; i<updatedNumberOfRecords + initialNumberOfRecords; i++) {
-      int ssn = i;
+      long ssn = i;
       String name = getName(i);
       String email = getEmail(i);
-      int age = getAge(i);
+      long age = getAge(i);
       String address = getAddress(i);
       long salary = getSalary(i);
 
@@ -295,11 +328,14 @@ public class Part2Test {
       if (ssn % 2 == 0) {
         assertNotNull(rec);
         assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
-        assertEquals(salary, rec.getValueForGivenAttrName(Salary));
         assertEquals(name, rec.getValueForGivenAttrName(Name));
         assertEquals(email, rec.getValueForGivenAttrName(Email));
         assertEquals(age, rec.getValueForGivenAttrName(Age));
         assertEquals(address, rec.getValueForGivenAttrName(Address));
+
+        if (i >= initialNumberOfRecords) {
+          assertEquals(salary, rec.getValueForGivenAttrName(Salary));
+        }
       } else {
         // odd records should have gone
         assertNull(rec);
@@ -316,10 +352,10 @@ public class Part2Test {
   public void unitTest7() {
     // insert the odd records back
     for (int i = 0; i<updatedNumberOfRecords + initialNumberOfRecords; i++) {
-      int ssn = i;
+      long ssn = i;
       String name = getName(i);
       String email = getEmail(i);
-      int age = getAge(i);
+      long age = getAge(i);
       String address = getAddress(i);
       long salary = getSalary(i);
 
@@ -340,13 +376,14 @@ public class Part2Test {
     Record rec = records.getFirst(cursor);
     // verify the first record
     assertNotNull(rec);
-    int ssn = 0;
+    long ssn = 0;
     assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
     assertEquals(getName(ssn), rec.getValueForGivenAttrName(Name));
     assertEquals(getEmail(ssn), rec.getValueForGivenAttrName(Email));
     assertEquals(getAge(ssn), rec.getValueForGivenAttrName(Age));
     assertEquals(getAddress(ssn), rec.getValueForGivenAttrName(Address));
     ssn++;
+
 
     while (true) {
       rec = records.getNext(cursor);
@@ -365,16 +402,22 @@ public class Part2Test {
       }
       ssn++;
     }
+
+    assertEquals(StatusCode.CURSOR_REACH_TO_EOF, records.deleteRecord(cursor));
     assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
+    assertEquals(StatusCode.CURSOR_INVALID, records.deleteRecord(cursor));
 
     // update even SSN records to be odd
     cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_WRITE);
     assertNotNull(cursor);
 
+    assertEquals(StatusCode.CURSOR_NOT_INITIALIZED, records.updateRecord(cursor, new String[]{SSN}, new Object[]{15}));
+
     rec = records.getFirst(cursor);
     assertNotNull(rec);
     long recSSN = (long) rec.getValueForGivenAttrName(SSN);
-    records.updateRecord(cursor, new String[]{SSN}, new Object[]{recSSN+1});
+    assertEquals(StatusCode.SUCCESS, records.updateRecord(cursor, new String[]{SSN}, new Object[]{recSSN+1}));
+    assertEquals(StatusCode.CURSOR_UPDATE_ATTRIBUTE_NOT_FOUND, records.updateRecord(cursor, new String[]{"ManagerSSN"}, new Object[]{666}));
 
     while (true) {
       rec = records.getNext(cursor);
@@ -382,21 +425,25 @@ public class Part2Test {
         break;
       }
       recSSN = (long) rec.getValueForGivenAttrName(SSN);
-      records.updateRecord(cursor, new String[]{SSN}, new Object[]{recSSN+1});
+      assertEquals(StatusCode.SUCCESS, records.updateRecord(cursor, new String[]{SSN}, new Object[]{recSSN+1}));
     }
+
+    assertEquals(StatusCode.CURSOR_REACH_TO_EOF, records.updateRecord(cursor, new String[]{SSN}, new Object[]{485}));
     assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
 
     // verify the odd number records are there
     for (int i = 0; i<updatedNumberOfRecords + initialNumberOfRecords; i++) {
       ssn = i;
-      String name = getName(i);
-      String email = getEmail(i);
-      int age = getAge(i);
-      String address = getAddress(i);
 
       cursor = records.openCursor(EmployeeTableName, SSN, ssn, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
       rec = records.getFirst(cursor);
       if (ssn % 2 == 1) {
+
+        String name = getName(i-1);
+        String email = getEmail(i-1);
+        long age = getAge(i-1);
+        String address = getAddress(i-1);
+
         assertNotNull(rec);
         assertEquals(ssn, rec.getValueForGivenAttrName(SSN));
         assertEquals(name, rec.getValueForGivenAttrName(Name));
