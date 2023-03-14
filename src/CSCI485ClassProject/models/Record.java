@@ -52,15 +52,23 @@ public class Record {
     }
 
     /**
+     * Check if given value is of the supported type
+     */
+    public static boolean isTypeSupported(Object value) {
+      return value == null                  // NULL
+          || value instanceof Integer  // INT
+          || value instanceof Long     // INT (long also regards as INT)
+          || value instanceof String // VARCHAR
+          || value instanceof Double;
+    }
+
+    /**
      * Set the underneath value. The given value must have the valid type.
      * @param value the value to set
      * @return StatusCode
      */
     public StatusCode setValue(Object value) {
-      if ( value != null                  // NULL
-          && !(value instanceof Integer)  // INT
-          && !(value instanceof String) // VARCHAR
-          && !(value instanceof Double)) // DOUBLE
+      if (!isTypeSupported(value))
         return ATTRIBUTE_TYPE_NOT_SUPPORTED;
 
       this.value = value;
@@ -72,7 +80,7 @@ public class Record {
      * @return AttributeType
      */
     public AttributeType getType() {
-      if (value instanceof Integer) {
+      if (value instanceof Integer || value instanceof Long) {
         return AttributeType.INT;
       } else if (value instanceof String) {
         return AttributeType.VARCHAR;
@@ -144,6 +152,13 @@ public class Record {
   public Object getValueForGivenAttrName(String attrName) {
     if (mapAttrNameToValue.containsKey(attrName)) {
       return mapAttrNameToValue.get(attrName).getValue();
+    }
+    return null;
+  }
+
+  public AttributeType getTypeForGivenAttrName(String attrName) {
+    if (mapAttrNameToValue.containsKey(attrName)) {
+      return mapAttrNameToValue.get(attrName).getType();
     }
     return null;
   }
