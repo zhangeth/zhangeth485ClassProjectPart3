@@ -142,7 +142,7 @@ public class Record {
 
     int i = 0;
     for (String key : mapAttrNameToValue.keySet()) {
-      mapAttrNameToValue.put(key, values.get(i));
+      this.mapAttrNameToValue.put(key, values.get(i));
       i++;
     }
 
