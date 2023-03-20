@@ -42,8 +42,6 @@ public class Part2Test {
   public static int initialNumberOfRecords = 100;
   public static int updatedNumberOfRecords = initialNumberOfRecords / 2;
 
-  public static int numberOfRecords = 0;
-
   private TableManager tableManager;
   private Records records;
 
@@ -100,7 +98,6 @@ public class Part2Test {
       Object[] nonPrimaryKeyVal = new Object[] {name, email, age, address};
 
       assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, primaryKeyVal, EmployeeTableNonPKAttributeNames, nonPrimaryKeyVal));
-      numberOfRecords++;
     }
 
     assertEquals(StatusCode.DATA_RECORD_PRIMARY_KEYS_UNMATCHED, records.insertRecord(EmployeeTableName, new String[]{}, new String[]{}, new String[]{"Name"}, new Object[]{"Bob"}));
@@ -193,7 +190,6 @@ public class Part2Test {
       Object[] nonPrimaryKeyVal = new Object[] {name, email, age, address, salary};
 
       assertEquals(StatusCode.SUCCESS, records.insertRecord(EmployeeTableName, EmployeeTablePKAttributes, primaryKeyVal, UpdatedEmployeeTableNonPKAttributeNames, nonPrimaryKeyVal));
-      numberOfRecords++;
     }
 
     // verify the schema changing
