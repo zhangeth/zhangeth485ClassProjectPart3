@@ -365,7 +365,7 @@ public class Part2Test {
     }
 
     // verify that odd records are back
-    Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_WRITE);
+    Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ);
     assertNotNull(cursor);
 
     // verify that all records are there, and delete the odd SSN records again
