@@ -39,7 +39,7 @@ public class Part2Test {
   public static String[] EmployeeTablePKAttributes = new String[]{"SSN"};
 
 
-  public static int initialNumberOfRecords = 10;
+  public static int initialNumberOfRecords = 100;
   public static int updatedNumberOfRecords = initialNumberOfRecords / 2;
 
   public static int numberOfRecords = 0;
