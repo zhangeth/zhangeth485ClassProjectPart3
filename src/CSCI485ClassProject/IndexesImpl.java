@@ -10,7 +10,7 @@ public class IndexesImpl implements Indexes{
   }
 
   @Override
-  public StatusCode removeIndex(String tableName, String attrName) {
+  public StatusCode dropIndex(String tableName, String attrName) {
     // your code
     return null;
   }

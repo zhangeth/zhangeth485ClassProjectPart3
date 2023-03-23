@@ -22,5 +22,5 @@ public interface Indexes {
    * @param attrName the target attribute name
    * @return StatusCode
    */
-  StatusCode removeIndex(String tableName, String attrName);
+  StatusCode dropIndex(String tableName, String attrName);
 }
