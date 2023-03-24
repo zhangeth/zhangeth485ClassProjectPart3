@@ -3,9 +3,9 @@
 This repo is the base codes of the ClassProject of 2023Spring CSCI485.
 
 ## Getting Started
-You need to copy and paste the code of Part 1 to this project. 
+You need to copy and paste the code of Part 1 and Part 2 to this project. 
 Your codes need to be put under `src/CSCI485ClassProject/` and its subdirectories. 
-Once finished, you can verify it by running the unit test of Part1.
+Once finished, you can verify it by running the unit test of Part1/Part2.
 
 ## Project Structure Overview
 
@@ -16,22 +16,19 @@ Once finished, you can verify it by running the unit test of Part1.
     - `test`: package for unit tests
     
 ## Codes to implement
-Under `src/CSCI485ClassProject`, there are 2 classes to finish:
-- `Cursor`: `Cursor` implementation
-- `RecordsImpl`: implementation of an interface class `Records`
+Under `src/CSCI485ClassProject`, there is 1 class to finish:
+- `IndexesImpl`: implementation of an interface class `Indexes`
+
+Also, `RecordsImpl` need to be augmented in order to incorporate indexes.
+Feel free to modify other implementations like `Cursor` if needed.
 
 ## Run Tests on macOS/Linux using `make`
 
 If you are developing in `macOS/Linux` environment(recommended), we provide `Makefile` for you to run tests quickly.
 
-To run tests of part1, use command
+To run tests of partX, use command
 ```shell
-make part1Test
-```
-
-To run tests of part2, use command
-```shell
-make part2Test
+make partXTest
 ```
 
 As you may have different project structures, Makefile may not work in your implementation. In this case, you can change the `sources` variable in Makefile by adding the name of the java files you created to it.
