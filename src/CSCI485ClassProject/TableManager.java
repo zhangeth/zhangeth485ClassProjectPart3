@@ -3,6 +3,7 @@ package CSCI485ClassProject;
 import java.util.HashMap;
 import CSCI485ClassProject.StatusCode;
 import CSCI485ClassProject.models.AttributeType;
+import CSCI485ClassProject.models.IndexType;
 import CSCI485ClassProject.models.TableMetadata;
 
 /**
@@ -77,6 +78,16 @@ public interface TableManager {
    * @return status code
    */
   public StatusCode dropAttribute(String tableName, String attributeName);
+
+  /**
+   * Return the index type exists on the table's attribute.
+   * If there is no index on the given attribute, return null.
+   *
+   * @param tableName the target table name
+   * @param attrName the target attribute name
+   * @return IndexType if index exists on the attribute, otherwise return null.
+   */
+  public IndexType getIndexTypeOnTableAttribute(String tableName, String attrName);
 
   /**
    * Drop all tables in the database

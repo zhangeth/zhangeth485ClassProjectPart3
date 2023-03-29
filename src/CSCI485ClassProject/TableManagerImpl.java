@@ -3,6 +3,7 @@ package CSCI485ClassProject;
 import CSCI485ClassProject.StatusCode;
 import CSCI485ClassProject.TableManager;
 import CSCI485ClassProject.models.AttributeType;
+import CSCI485ClassProject.models.IndexType;
 import CSCI485ClassProject.models.TableMetadata;
 
 import java.util.HashMap;
@@ -42,6 +43,11 @@ public class TableManagerImpl implements TableManager {
   public StatusCode dropAttribute(String tableName, String attributeName) {
     // your code
     return StatusCode.SUCCESS;
+  }
+
+  @Override
+  public IndexType getIndexTypeOnTableAttribute(String tableName, String attrName) {
+    return null;
   }
 
   @Override
