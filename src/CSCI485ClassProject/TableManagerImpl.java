@@ -46,11 +46,6 @@ public class TableManagerImpl implements TableManager {
   }
 
   @Override
-  public IndexType getIndexTypeOnTableAttribute(String tableName, String attrName) {
-    return null;
-  }
-
-  @Override
   public StatusCode dropAllTables() {
     // your code
     return StatusCode.SUCCESS;
