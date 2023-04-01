@@ -36,7 +36,7 @@ public class Part3Test {
   public static String[] EmployeeTableAttributeNames = new String[]{SSN, Name, Email, Age, Address, Salary};
   public static String[] EmployeeTableNonPKAttributeNames = new String[]{Name, Email, Age, Address, Salary};
   public static AttributeType[] EmployeeTableAttributeTypes =
-      new AttributeType[]{AttributeType.INT, AttributeType.VARCHAR, AttributeType.VARCHAR, AttributeType.INT, AttributeType.VARCHAR};
+      new AttributeType[]{AttributeType.INT, AttributeType.VARCHAR, AttributeType.VARCHAR, AttributeType.INT, AttributeType.VARCHAR, AttributeType.INT};
 
   public static String[] UpdatedEmployeeTableNonPKAttributeNames = new String[]{Name, Email, Age, Address, Salary};
   public static String[] EmployeeTablePKAttributes = new String[]{"SSN"};
@@ -76,7 +76,7 @@ public class Part3Test {
   }
 
   private long getSalary(long i) {
-    return i + 100;
+    return i;
   }
 
   private Record getExpectedEmployeeRecord(long ssn) {
@@ -166,18 +166,19 @@ public class Part3Test {
     assertEquals(ssn, initialNumberOfRecords);
 
     // create the index
-    assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, Salary, IndexType.NON_CLUSTERED_HASH_INDEX));
-    assertEquals(StatusCode.INDEX_ALREADY_EXISTS_ON_ATTRIBUTE, indexes.createIndex(EmployeeTableName, Salary, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
+    assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, Email, IndexType.NON_CLUSTERED_HASH_INDEX));
+    assertEquals(StatusCode.INDEX_ALREADY_EXISTS_ON_ATTRIBUTE, indexes.createIndex(EmployeeTableName, Email, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
 
     System.out.println("Test1 passed!");
   }
 
   @Test
   public void unitTest2() {
-    Cursor cursor = records.openCursor(EmployeeTableName, Salary, 50, ComparisonOperator.GREATER_THAN_OR_EQUAL_TO, Cursor.Mode.READ, true);
+    assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, Salary, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
+    Cursor cursor = records.openCursor(EmployeeTableName, Salary, 75, ComparisonOperator.LESS_THAN, Cursor.Mode.READ, true);
 
     boolean isCursorInitialized = false;
-    for (int i = 51; i < initialNumberOfRecords; i++) {
+    for (int i = 0; i < 75; i++) {
       Record record;
       if (!isCursorInitialized) {
         record = records.getFirst(cursor);
@@ -266,7 +267,7 @@ public class Part3Test {
 
     assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
 
-    cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ);
+    cursor = records.openCursor(EmployeeTableName, SSN, initialNumberOfRecords + updatedNumberOfRecords, ComparisonOperator.LESS_THAN_OR_EQUAL_TO, Cursor.Mode.READ, true);
     isCursorInitialized = false;
     while (true) {
       Record record;
@@ -334,8 +335,8 @@ public class Part3Test {
     assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
     isCursorInitialized = false;
 
-    cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ);
-    for (int i = 0; i < initialNumberOfRecords + updatedNumberOfRecords; i++) {
+    cursor = records.openCursor(EmployeeTableName, Salary, 0, ComparisonOperator.GREATER_THAN, Cursor.Mode.READ, true);
+    for (int i = 1; i < initialNumberOfRecords + updatedNumberOfRecords; i++) {
       Record record;
       if (!isCursorInitialized) {
         record = records.getFirst(cursor);
@@ -356,6 +357,11 @@ public class Part3Test {
     // perf test
     // create the Perf Table
 
+    tableManager.dropAllTables();
+
+    int numOfRecords = 1000000;
+    int numOfQueries = 10000;
+
     String INT0 = "INT0";
     String INT1 = "INT1";
     String INT2 = "INT2";
@@ -365,11 +371,10 @@ public class Part3Test {
     String[] PerfTablePKAttributes = new String[] {INT0};
     String[] PerfTableNonPKAttributes = new String[] {INT1, INT2};
 
-    String PerfTableName = "Perf";
+    String PerfTableName = "Test7";
     assertEquals(StatusCode.SUCCESS, tableManager.createTable(PerfTableName,
         PerfTableAttributeNames, PerfTableAttributeTypes, PerfTablePKAttributes));
 
-    int numOfRecords = 1000000;
     Random randGenerator = new Random(randSeed);
     for (int i = 0; i < numOfRecords; i++) {
       Long randVal = getPerfRandNumber(randGenerator);
@@ -380,13 +385,13 @@ public class Part3Test {
       assertEquals(StatusCode.SUCCESS, records.insertRecord(PerfTableName, PerfTablePKAttributes, primaryKeyVal, PerfTableNonPKAttributes, nonPrimaryKeyVal));
     }
 
-    int numOfQueries = 10000;
     long startTime = System.nanoTime();
     randGenerator = new Random(randSeed);
     for (int i = 0; i < numOfQueries; i++) {
       Long randVal = getPerfRandNumber(randGenerator);
       Cursor cursor = records.openCursor(PerfTableName, INT1, randVal, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, false);
       assertNotNull(records.getFirst(cursor));
+      assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
     }
     long endTime = System.nanoTime();
     long executionTimeWithoutIndex = (endTime - startTime) / 1000;
@@ -400,6 +405,7 @@ public class Part3Test {
       Long randVal = getPerfRandNumber(randGenerator);
       Cursor cursor = records.openCursor(PerfTableName, INT1, randVal, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
       assertNotNull(records.getFirst(cursor));
+      assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
     }
     endTime = System.nanoTime();
     long executionTimeWithHashIndex = (endTime - startTime) / 1000;
@@ -414,6 +420,7 @@ public class Part3Test {
       Long randVal = getPerfRandNumber(randGenerator);
       Cursor cursor = records.openCursor(PerfTableName, INT1, randVal, ComparisonOperator.EQUAL_TO, Cursor.Mode.READ, true);
       assertNotNull(records.getFirst(cursor));
+      assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
     }
     endTime = System.nanoTime();
     long executionTimeWithBPlusTreeIndex = (endTime - startTime) / 1000;
