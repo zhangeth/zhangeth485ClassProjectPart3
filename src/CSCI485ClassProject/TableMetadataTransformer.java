@@ -28,7 +28,7 @@ public class TableMetadataTransformer {
   public TableMetadataTransformer(String tableName) {
     tableAttributeStorePath = new ArrayList<>();
     tableAttributeStorePath.add(tableName);
-    tableAttributeStorePath.add(DBConf.METADATA_TABLE_ATTR_STORE);
+    tableAttributeStorePath.add(DBConf.TABLE_SCHEMA_STORE);
   }
 
   public List<String> getTableAttributeStorePath() {
