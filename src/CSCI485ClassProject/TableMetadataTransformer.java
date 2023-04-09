@@ -1,5 +1,6 @@
 package CSCI485ClassProject;
 
+import CSCI485ClassProject.fdb.FDBKVPair;
 import CSCI485ClassProject.models.AttributeType;
 import CSCI485ClassProject.models.TableMetadata;
 import com.apple.foundationdb.tuple.Tuple;

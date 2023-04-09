@@ -1,4 +1,4 @@
-package CSCI485ClassProject;
+package CSCI485ClassProject.fdb;
 
 import com.apple.foundationdb.tuple.Tuple;
 

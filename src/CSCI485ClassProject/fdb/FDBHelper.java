@@ -1,11 +1,15 @@
-package CSCI485ClassProject;
+package CSCI485ClassProject.fdb;
 
+import CSCI485ClassProject.models.ComparisonOperator;
 import com.apple.foundationdb.Database;
 import com.apple.foundationdb.FDB;
 import com.apple.foundationdb.FDBException;
+import com.apple.foundationdb.KeySelector;
 import com.apple.foundationdb.KeyValue;
 import com.apple.foundationdb.Range;
+import com.apple.foundationdb.ReadTransaction;
 import com.apple.foundationdb.Transaction;
+import com.apple.foundationdb.async.AsyncIterable;
 import com.apple.foundationdb.directory.DirectoryLayer;
 import com.apple.foundationdb.directory.DirectorySubspace;
 import com.apple.foundationdb.subspace.Subspace;
@@ -30,6 +34,45 @@ public class FDBHelper {
       System.out.println("ERROR: the database is not successfully opened: " + e);
     }
     return db;
+  }
+
+  // Iterator Helpers
+  public static AsyncIterable<KeyValue> getKVPairIterableOfDirectory(DirectorySubspace dir, Transaction tx, boolean isReverse) {
+    if (dir == null) {
+      return null;
+    }
+
+    Range dirRange = dir.range();
+    return tx.getRange(dirRange, ReadTransaction.ROW_LIMIT_UNLIMITED, isReverse);
+  }
+
+  public static AsyncIterable<KeyValue> getKVPairIterableWithPrefixInDirectory(DirectorySubspace dir, Transaction tx, Tuple prefixTuple, boolean isReverse) {
+    if (dir == null) {
+      return null;
+    }
+    return tx.getRange(Range.startsWith(dir.pack(prefixTuple)), ReadTransaction.ROW_LIMIT_UNLIMITED, isReverse);
+  }
+
+  public static AsyncIterable<KeyValue> getKVPairIterableStartWithPrefixInDirectory(DirectorySubspace dir, Transaction tx, Tuple prefixTuple, boolean isReverse) {
+    if (dir == null) {
+      return null;
+    }
+
+    if (!isReverse) {
+      KeySelector beginKeySelector = KeySelector.firstGreaterOrEqual(dir.pack(prefixTuple));
+
+      Range dirRange = dir.range();
+      Range range = new Range(beginKeySelector.getKey(), dirRange.end);
+
+      return tx.getRange(range, ReadTransaction.ROW_LIMIT_UNLIMITED, false);
+    } else {
+      KeySelector endKeySelector = KeySelector.lastLessOrEqual(dir.pack(prefixTuple));
+
+      Range dirRange = dir.range();
+      Range range = new Range(dirRange.begin, endKeySelector.getKey());
+
+      return tx.getRange(range, ReadTransaction.ROW_LIMIT_UNLIMITED, true);
+    }
   }
 
   public static void setFDBKVPair(DirectorySubspace tgtSubspace, Transaction tx, FDBKVPair kv) {
@@ -60,21 +103,6 @@ public class FDBHelper {
       res.add(new FDBKVPair(path, key, value));
     }
 
-    return res;
-  }
-  // get primary keys
-  public static List<FDBKVPair> getPrimaryKeysofSubdirectory(Database db, Transaction tx, List<String> tablePath){
-    List<FDBKVPair> res = getAllKeyValuePairsOfSubdirectory(db, tx, tablePath);
-    //TableMetadataTransformer transformer = new TableMetadataTransformer(tableName);
-    //DirectorySubspace tableAttrSpace = FDBHelper.createOrOpenSubspace(tx, transformer.getTableAttributeStorePath());
-    if (res.isEmpty()){
-      System.out.println("Empty subdir when attempting getPrimaryKeysofSubdirectory");
-    }
-
-    for (FDBKVPair pair : res)
-    {
-      // unpack th
-    }
     return res;
   }
 
@@ -114,7 +142,7 @@ public class FDBHelper {
     DirectoryLayer.getDefault().remove(tx, path).join();
   }
 
-  public static void removeKeyValuePair(Transaction tx, DirectorySubspace dir, Tuple keyTuple) {
+  public static void removeKeyValuePair(DirectorySubspace dir, Transaction tx, Tuple keyTuple) {
     tx.clear(dir.pack(keyTuple));
   }
 
@@ -129,14 +157,13 @@ public class FDBHelper {
   public static boolean tryCommitTx(Transaction tx, int retryCounter) {
     try {
       tx.commit().join();
+      tx.close();
       return true;
     } catch (FDBException e) {
       if (retryCounter < MAX_TRANSACTION_COMMIT_RETRY_TIMES) {
-        System.out.println("retrying");
         retryCounter++;
         tryCommitTx(tx, retryCounter);
       } else {
-        System.out.println("canceled");
         tx.cancel();
         return false;
       }

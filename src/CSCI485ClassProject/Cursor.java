@@ -1,351 +1,344 @@
 package CSCI485ClassProject;
 
+import CSCI485ClassProject.fdb.FDBHelper;
+import CSCI485ClassProject.fdb.FDBKVPair;
 import CSCI485ClassProject.models.AttributeType;
 import CSCI485ClassProject.models.ComparisonOperator;
 import CSCI485ClassProject.models.Record;
 import CSCI485ClassProject.models.TableMetadata;
-import com.apple.foundationdb.Database;
-import com.apple.foundationdb.FDB;
+import CSCI485ClassProject.utils.ComparisonUtils;
 import com.apple.foundationdb.KeyValue;
 import com.apple.foundationdb.Transaction;
 import com.apple.foundationdb.async.AsyncIterable;
 import com.apple.foundationdb.async.AsyncIterator;
 import com.apple.foundationdb.directory.DirectorySubspace;
 import com.apple.foundationdb.tuple.Tuple;
-import com.apple.foundationdb.tuple.ByteArrayUtil;
-import jdk.internal.dynalink.linker.ConversionComparator;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import java.security.Key;
-import java.sql.Array;
-import java.util.*;
-
-import static com.apple.foundationdb.ReadTransaction.ROW_LIMIT_UNLIMITED;
+import static CSCI485ClassProject.RecordsTransformer.getPrimaryKeyValTuple;
 
 public class Cursor {
   public enum Mode {
     READ,
-    READ_WRITE
+    READ_WRITE,
   }
 
-  public static Set<ComparisonOperator> equalToOperators = new HashSet<>();
+  // used by predicate
+  private boolean isPredicateEnabled = false;
+  private String predicateAttributeName;
+  private Record.Value predicateAttributeValue;
+  private ComparisonOperator predicateOperator;
 
-  static {
-    equalToOperators.add(ComparisonOperator.EQUAL_TO);
-    equalToOperators.add(ComparisonOperator.GREATER_THAN_OR_EQUAL_TO);
-    equalToOperators.add(ComparisonOperator.LESS_THAN_OR_EQUAL_TO);
-  }
-  private Database db;
-  private DirectorySubspace recordsSubspace;
-  private Transaction cursorTx;
+  // Table Schema Info
   private String tableName;
-  private List<String> recordsPath;
-  private Mode mode;
+  private TableMetadata tableMetadata;
 
-  private String attrToParse;
-  private Object threshold;
+  private RecordsTransformer recordsTransformer;
 
-  private KeyValue prevKeyValue;
+  private boolean isInitialized = false;
 
-  private Object prevPrimaryValue;
-  private KeyValue currentKeyValue;
-  private Object currentPrimaryValue;
+  private boolean isInitializedToLast = false;
 
-  private List<FDBKVPair> currentRecord;
-  private ComparisonOperator operator;
-  private AsyncIterable<KeyValue> iterable;
-  private AsyncIterator<KeyValue> iterator;
-  private boolean goingForward;
-  private boolean eof = false;
-  private boolean isUsingIndex = false;
+  private final Mode mode;
 
-  // your code here cursor table it's bound to, starting point, current point
-  // constructor
-  Cursor(String tableName, Mode mode, Database db){
-    // store records subdir
-    List<String> recordsSubdirectory = new ArrayList<>();
-    recordsSubdirectory.add(tableName);
-    recordsSubdirectory.add("records");
+  private AsyncIterator<KeyValue> iterator = null;
 
-    recordsPath = recordsSubdirectory;
-    // set name and mode
-    this.tableName = tableName;
+  private Record currentRecord = null;
+
+  private Transaction tx;
+
+  private DirectorySubspace directorySubspace;
+
+  private boolean isMoved = false;
+  private FDBKVPair currentKVPair = null;
+
+  public Cursor(Mode mode, String tableName, TableMetadata tableMetadata, Transaction tx) {
     this.mode = mode;
-    this.db = db;
-
-    // get subspace of path
-    this.cursorTx = FDBHelper.openTransaction(db);
-    // get subspace
-    recordsSubspace = FDBHelper.createOrOpenSubspace(cursorTx, recordsPath);
-    // by default start at beginning of records
-    goingForward = true;
-
-    System.out.println("Successfully made cursor");
+    this.tableName = tableName;
+    this.tableMetadata = tableMetadata;
+    this.tx = tx;
   }
 
-  Cursor(String tableName, String attrToParse, Object threshold, ComparisonOperator operator, Cursor.Mode mode, boolean isUsingIndex, Database db)
-  {
-      this(tableName, mode, db);
-      this.isUsingIndex = isUsingIndex;
-      this.attrToParse = attrToParse;
-      this.threshold = threshold;
-      this.operator = operator;
+  public void setTx(Transaction tx) {
+    this.tx = tx;
   }
 
-
-  private void setCurrentKeyToNext()
-  {
-    if (iterator.hasNext())
-    {
-      currentKeyValue = iterator.next();
-      // SSN value of current record
-      currentPrimaryValue = convertKeyValueToFDBKVPair(currentKeyValue).getKey().get(1);
-
-      System.out.println("First record value: " + currentPrimaryValue.toString());
-      System.out.println("First tuple attr: " + convertKeyValueToFDBKVPair(currentKeyValue).getKey().get(2).toString());
-    }
+  public Transaction getTx() {
+    return tx;
   }
 
-  private void initializeIterable()
-  {
-    this.iterable = cursorTx.getRange(recordsSubspace.range(), ROW_LIMIT_UNLIMITED, !goingForward);
-    this.iterator = iterable.iterator();
-
-    setCurrentKeyToNext();
-  }
-
-  public Record goToFirst()
-  {
-    goingForward = true;
-    initializeIterable();
-    // get all the keyValues that start with same primary value
-    return getNext();
-  }
-
-  private Record makeRecordFromCurrentKey()
-  {
-    if (!eof)
-    {
-      Record rec = new Record();
-      FDBKVPair kvPair = convertKeyValueToFDBKVPair(currentKeyValue);
-
-      // first object is table key, second is primaryKeyValue, third is attribute name
-      List<Object> keyObjects = kvPair.getKey().getItems();
-
-      prevKeyValue = currentKeyValue;
-      prevPrimaryValue = kvPair.getKey().get(1);
-
-      List<FDBKVPair> newRecord = new ArrayList<>();
-
-      while (keyObjects.get(1).equals(currentPrimaryValue))
-      {
-        newRecord.add(kvPair);
-
-        rec.setAttrNameAndValue((String) keyObjects.get(2), kvPair.getValue().get(0));
-
-        if (!iterator.hasNext())
-        {
-          System.out.println("reached EOF");
-          currentRecord = newRecord;
-          eof = true;
-          return rec;
-        }
-
-        currentKeyValue = iterator.next();
-        kvPair = convertKeyValueToFDBKVPair(currentKeyValue);
-        keyObjects = kvPair.getKey().getItems();
-      }
-      currentRecord = newRecord;
-      // set to next key
-
-      currentPrimaryValue = convertKeyValueToFDBKVPair(currentKeyValue).getKey().get(1);
-
-      return rec;
+  public void abort() {
+    if (iterator != null) {
+      iterator.cancel();
     }
 
-    return null;
+    if (tx != null) {
+      FDBHelper.abortTransaction(tx);
+    }
+
+    tx = null;
   }
 
-  public Record goToLast()
-  {
-    goingForward = false;
-    initializeIterable();
-    return getNext();
+  public void commit() {
+    if (iterator != null) {
+      iterator.cancel();
+    }
+    if (tx != null) {
+      FDBHelper.commitTransaction(tx);
+    }
+
+    tx = null;
   }
 
-  public Record getPrev()
-  {
-    return makeRecordFromCurrentKey();
+  public final Mode getMode() {
+    return mode;
   }
 
-  public Record getNext()
-  {
-    // add check for thing
-    Record res = makeRecordFromCurrentKey();
-    if (res == null)
-    {
+  public boolean isInitialized() {
+    return isInitialized;
+  }
+
+  public String getTableName() {
+    return tableName;
+  }
+
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
+  }
+
+  public TableMetadata getTableMetadata() {
+    return tableMetadata;
+  }
+
+  public void setTableMetadata(TableMetadata tableMetadata) {
+    this.tableMetadata = tableMetadata;
+  }
+
+  public void enablePredicate(String attrName, Record.Value value, ComparisonOperator operator) {
+    this.predicateAttributeName = attrName;
+    this.predicateAttributeValue = value;
+    this.predicateOperator = operator;
+    this.isPredicateEnabled = true;
+  }
+
+
+
+  private Record moveToNextRecord(boolean isInitializing) {
+    if (!isInitializing && !isInitialized) {
       return null;
     }
 
-    if (operator != null)
-    {
-      if (satisfiesOperator(res))
-      {
-        return res;
-      }
+    if (isInitializing) {
+      // initialize the subspace and the iterator
+      recordsTransformer = new RecordsTransformer(getTableName(), getTableMetadata());
+      directorySubspace = FDBHelper.openSubspace(tx, recordsTransformer.getTableRecordPath());
+      AsyncIterable<KeyValue> fdbIterable = FDBHelper.getKVPairIterableOfDirectory(directorySubspace, tx, isInitializedToLast);
+      if (fdbIterable != null)
+        iterator = fdbIterable.iterator();
 
-      if (eof)
-      {
-        return null;
-      }
-
-      return getNext();
-
+      isInitialized = true;
     }
-    else {
-      return res;
+    // reset the currentRecord
+    currentRecord = null;
+
+    // no such directory, or no records under the directory
+    if (directorySubspace == null || !hasNext()) {
+      return null;
     }
 
+    List<String> recordStorePath = recordsTransformer.getTableRecordPath();
+    List<FDBKVPair> fdbkvPairs = new ArrayList<>();
+
+    boolean isSavePK = false;
+    Tuple pkValTuple = new Tuple();
+    Tuple tempPkValTuple = null;
+    if (isMoved && currentKVPair != null) {
+      fdbkvPairs.add(currentKVPair);
+      pkValTuple = getPrimaryKeyValTuple(currentKVPair.getKey());
+      isSavePK = true;
+    }
+
+    isMoved = true;
+    boolean nextExists = false;
+
+    while (iterator.hasNext()) {
+      KeyValue kv = iterator.next();
+      Tuple keyTuple = directorySubspace.unpack(kv.getKey());
+      Tuple valTuple = Tuple.fromBytes(kv.getValue());
+      FDBKVPair kvPair = new FDBKVPair(recordStorePath, keyTuple, valTuple);
+      tempPkValTuple = getPrimaryKeyValTuple(keyTuple);
+      if (!isSavePK) {
+        pkValTuple = tempPkValTuple;
+        isSavePK = true;
+      } else if (!pkValTuple.equals(tempPkValTuple)){
+        // when pkVal change, stop there
+        currentKVPair = kvPair;
+        nextExists = true;
+        break;
+      }
+      fdbkvPairs.add(kvPair);
+    }
+    if (!fdbkvPairs.isEmpty()) {
+      currentRecord = recordsTransformer.convertBackToRecord(fdbkvPairs);
+    }
+
+    if (!nextExists) {
+      currentKVPair = null;
+    }
+    return currentRecord;
   }
 
-  private boolean satisfiesOperator(Record res)
-  {
-    // check record has entry for given attr
-    if (!res.getMapAttrNameToValue().containsKey(attrToParse))
-    {
+  public Record getFirst() {
+    if (isInitialized) {
+      return null;
+    }
+    isInitializedToLast = false;
+
+    Record record = moveToNextRecord(true);
+    if (isPredicateEnabled) {
+      while (record != null && !doesRecordMatchPredicate(record)) {
+        record = moveToNextRecord(false);
+      }
+    }
+    return record;
+  }
+
+  private boolean doesRecordMatchPredicate(Record record) {
+    Object recVal = record.getValueForGivenAttrName(predicateAttributeName);
+    AttributeType recType = record.getTypeForGivenAttrName(predicateAttributeName);
+    if (recVal == null || recType == null) {
+      // attribute not exists in this record
       return false;
     }
 
-    AttributeType attrType = res.getTypeForGivenAttrName(attrToParse);
-    //attrType = RecordsHelper.getType(threshold);
-
-    //compare ints
-    if (attrType == AttributeType.INT)
-    {
-      Integer recordValue = Integer.valueOf(res.getValueForGivenAttrName(attrToParse).toString());
-      Integer thresholdInt = Integer.valueOf(threshold.toString());
-
-      if (recordValue > thresholdInt) {
-        if (operator == ComparisonOperator.GREATER_THAN || operator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO)
-        {
-          return true;
-        }
-      }
-      else if (recordValue == thresholdInt)
-      {
-
-        if (operator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO || operator == ComparisonOperator.EQUAL_TO || operator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO)
-        {
-          return true;
-        }
-      }
-      else
-      {
-        if (operator == ComparisonOperator.LESS_THAN || operator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO)
-        {
-          return true;
-        }
-        return false;
-      }
-    }
-    // compare doubles
-    else if (attrType == AttributeType.DOUBLE)
-    {
-      Double recordValue = Double.valueOf(res.getValueForGivenAttrName(attrToParse).toString());
-      Double thresholdDouble = Double.valueOf(threshold.toString());
-
-      if (recordValue > thresholdDouble) {
-        if (operator == ComparisonOperator.GREATER_THAN || operator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO)
-          return true;
-      }
-      else if (recordValue == thresholdDouble)
-      {
-        if (operator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO || operator == ComparisonOperator.EQUAL_TO || operator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO)
-          return true;
-      }
-      else
-      {
-        if (operator == ComparisonOperator.LESS_THAN || operator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO)
-          return true;
-        return false;
-      }
-    }
-    // compare strings
-    else {
-
-      String recordValue = res.getValueForGivenAttrName(attrToParse).toString();
-      String thresholdStr = threshold.toString();
-
-      if (recordValue.compareTo(thresholdStr) > 0 ) {
-        if (operator == ComparisonOperator.GREATER_THAN || operator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO)
-          return true;
-      }
-      else if (recordValue.equals(thresholdStr))
-      {
-        if (operator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO || operator == ComparisonOperator.EQUAL_TO || operator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO) {
-          return true;
-        }
-      }
-      else
-      {
-        if (operator == ComparisonOperator.LESS_THAN || operator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO)
-          return true;
-        return false;
-      }
+    if (recType == AttributeType.INT) {
+      return ComparisonUtils.compareTwoINT(recVal, predicateAttributeValue.getValue(), predicateOperator);
+    } else if (recType == AttributeType.DOUBLE){
+      return ComparisonUtils.compareTwoDOUBLE(recVal, predicateAttributeValue.getValue(), predicateOperator);
+    } else if (recType == AttributeType.VARCHAR) {
+      return ComparisonUtils.compareTwoVARCHAR(recVal, predicateAttributeValue.getValue(), predicateOperator);
     }
 
-      return false;
+    return false;
   }
 
-  public StatusCode deleteRecord()
-  {
-    if (currentRecord != null)
-    {
-      for (FDBKVPair p : currentRecord)
-      {
-        FDBHelper.removeKeyValuePair(cursorTx, recordsSubspace, p.getKey());
+  public Record getLast() {
+    if (isInitialized) {
+      return null;
+    }
+    isInitializedToLast = true;
+
+    Record record = moveToNextRecord(true);
+    if (isPredicateEnabled) {
+      while (record != null && !doesRecordMatchPredicate(record)) {
+        record = moveToNextRecord(false);
+      }
+    }
+    return record;
+  }
+
+  public boolean hasNext() {
+    return isInitialized && iterator != null && (iterator.hasNext() || currentKVPair != null);
+  }
+
+  public Record next(boolean isGetPrevious) {
+    if (!isInitialized) {
+      return null;
+    }
+    if (isGetPrevious != isInitializedToLast) {
+      return null;
+    }
+
+    Record record = moveToNextRecord(false);
+    if (isPredicateEnabled) {
+      while (record != null && !doesRecordMatchPredicate(record)) {
+        record = moveToNextRecord(false);
+      }
+    }
+    return record;
+  }
+
+  public Record getCurrentRecord() {
+    return currentRecord;
+  }
+
+  public StatusCode updateCurrentRecord(String[] attrNames, Object[] attrValues) {
+    if (tx == null) {
+      return StatusCode.CURSOR_INVALID;
+    }
+
+    if (!isInitialized) {
+      return StatusCode.CURSOR_NOT_INITIALIZED;
+    }
+
+    if (currentRecord == null) {
+      return StatusCode.CURSOR_REACH_TO_EOF;
+    }
+
+    Set<String> currentAttrNames = currentRecord.getMapAttrNameToValue().keySet();
+    Set<String> primaryKeys = new HashSet<>(tableMetadata.getPrimaryKeys());
+
+    boolean isUpdatingPK = false;
+    for (int i = 0; i<attrNames.length; i++) {
+      String attrNameToUpdate = attrNames[i];
+      Object attrValToUpdate = attrValues[i];
+
+      if (!currentAttrNames.contains(attrNameToUpdate)) {
+        return StatusCode.CURSOR_UPDATE_ATTRIBUTE_NOT_FOUND;
       }
 
+      if (!Record.Value.isTypeSupported(attrValToUpdate)) {
+        return StatusCode.ATTRIBUTE_TYPE_NOT_SUPPORTED;
+      }
+
+      if (!isUpdatingPK && primaryKeys.contains(attrNameToUpdate)) {
+        isUpdatingPK = true;
+      }
     }
-    else {
-      System.out.println("curr record is null: ");
+
+    if (isUpdatingPK) {
+      // delete the old record first
+      StatusCode deleteStatus = deleteCurrentRecord();
+      if (deleteStatus != StatusCode.SUCCESS) {
+        return deleteStatus;
+      }
+    }
+
+    for (int i = 0; i<attrNames.length; i++) {
+      String attrNameToUpdate = attrNames[i];
+      Object attrValToUpdate = attrValues[i];
+      currentRecord.setAttrNameAndValue(attrNameToUpdate, attrValToUpdate);
+    }
+
+    List<FDBKVPair> kvPairsToUpdate = recordsTransformer.convertToFDBKVPairs(currentRecord);
+    for (FDBKVPair kv : kvPairsToUpdate) {
+      FDBHelper.setFDBKVPair(directorySubspace, tx, kv);
+    }
+    return StatusCode.SUCCESS;
+  }
+
+  public StatusCode deleteCurrentRecord() {
+    if (tx == null) {
+      return StatusCode.CURSOR_INVALID;
+    }
+
+    if (!isInitialized) {
+      return StatusCode.CURSOR_NOT_INITIALIZED;
+    }
+
+    if (currentRecord == null) {
+      return StatusCode.CURSOR_REACH_TO_EOF;
+    }
+
+    List<FDBKVPair> kvPairsToDelete = recordsTransformer.convertToFDBKVPairs(currentRecord);
+    for (FDBKVPair kv : kvPairsToDelete) {
+      FDBHelper.removeKeyValuePair(directorySubspace, tx, kv.getKey());
     }
 
     return StatusCode.SUCCESS;
   }
-
-
-
-  public StatusCode commit()
-  {
-    try
-    {
-      FDBHelper.commitTransaction(cursorTx);
-      mode = null;
-      iterator = null;
-      mode = null;
-    }
-    catch (Exception e)
-    {
-      System.out.println(e);
-    }
-    return StatusCode.SUCCESS;
-  }
-  // helper methods
-
-  private FDBKVPair convertKeyValueToFDBKVPair(KeyValue kv)
-  {
-    Tuple keyTuple = Tuple.fromBytes(kv.getKey());
-    Tuple valueTuple = Tuple.fromBytes(kv.getValue());
-
-    return new FDBKVPair(recordsPath, keyTuple, valueTuple);
-  }
-
-  private Record convertFDBKVPairToRecord(FDBKVPair kv)
-  {
-    Record rec = new Record();
-    return rec;
-  }
-
-
 }

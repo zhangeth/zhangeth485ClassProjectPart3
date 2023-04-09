@@ -1,5 +1,7 @@
 package CSCI485ClassProject;
 
+import CSCI485ClassProject.fdb.FDBHelper;
+import CSCI485ClassProject.fdb.FDBKVPair;
 import CSCI485ClassProject.models.AttributeType;
 import CSCI485ClassProject.models.TableMetadata;
 import com.apple.foundationdb.Database;
@@ -16,7 +18,8 @@ import java.util.List;
  * TableManagerImpl implements interfaces in {#TableManager}. You should put your implementation
  * in this class.
  */
-public class TableManagerImpl implements TableManager {
+public class TableManagerImpl implements TableManager{
+
   private Database db;
 
   public TableManagerImpl() {
@@ -159,7 +162,7 @@ public class TableManagerImpl implements TableManager {
       return StatusCode.ATTRIBUTE_NOT_FOUND;
     }
     // if exists, remove the attribute corresponding kvPair
-    FDBHelper.removeKeyValuePair(tx, tableAttrDir, pair.getKey());
+    FDBHelper.removeKeyValuePair(tableAttrDir, tx, pair.getKey());
     FDBHelper.commitTransaction(tx);
 
     return StatusCode.SUCCESS;
