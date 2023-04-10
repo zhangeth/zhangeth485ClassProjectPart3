@@ -48,8 +48,7 @@ public class NonClusteredHashIndex {
             // convert into NonClusteredHashIndexRecord, just one primaryKey
             for (String pKey : pKeys)
             {
-                Object o = rec.getValueForGivenAttrName(pKey);
-                pkValue = pkValue.addObject(o);
+                pkValue = pkValue.addObject(rec.getValueForGivenAttrName(pKey));
                 System.out.print("Tuple: " + pkValue);
             }
 
