@@ -7,6 +7,7 @@ import CSCI485ClassProject.models.TableMetadata;
 import com.apple.foundationdb.Database;
 import com.apple.foundationdb.Transaction;
 import com.apple.foundationdb.directory.DirectorySubspace;
+import com.apple.foundationdb.tuple.Tuple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,19 +36,21 @@ public class NonClusteredHashIndex {
 
         List<String> pKeys = tbm.getPrimaryKeys();
 
+        System.out.println("building");
+
         while (rec != null)
         {
-            long pKValue = 0;
+            Tuple pkValue = new Tuple();
             // convert into NonClusteredHashIndexRecord, just one primaryKey
             for (String pKey : pKeys)
             {
-                pKValue = (long)rec.getValueForGivenAttrName(pKey);
-                System.out.print("pKey" + pKey + " value: " + rec.getValueForGivenAttrName(pKey) + " converted val: " + pKValue);
+                pkValue.add((long)rec.getValueForGivenAttrName(pKey));
+                System.out.print("pKey" + pKey + " value: " + rec.getValueForGivenAttrName(pKey) + " converted val: " + pkValue);
             }
 
             Long attrValue = Long.valueOf((long)rec.getValueForGivenAttrName(targetAttrName).hashCode());
 
-            NonClusteredHashIndexRecord nchRecord = new NonClusteredHashIndexRecord(tableName, targetAttrName, attrValue, Long.valueOf(pKValue));
+            NonClusteredHashIndexRecord nchRecord = new NonClusteredHashIndexRecord(tableName, targetAttrName, attrValue, pkValue);
             // get pkValue
             res.add(nchRecord);
 

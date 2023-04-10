@@ -9,9 +9,9 @@ public class NonClusteredHashIndexRecord {
     private static IndexType indexType = IndexType.NON_CLUSTERED_HASH_INDEX;
     private String hashAttrName;
     private Long hashValue;
-    private Long pkValue;
+    private Tuple pkValue;
 
-    public NonClusteredHashIndexRecord(String tableName, String hashAttrName, Long hashValue, Long pkValue) {
+    public NonClusteredHashIndexRecord(String tableName, String hashAttrName, Long hashValue, Tuple pkValue) {
         this.tableName = tableName;
         // index type is automatic non-clustered
         this.hashAttrName = hashAttrName;
