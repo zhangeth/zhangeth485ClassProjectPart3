@@ -32,7 +32,7 @@ public class NonClusteredHashIndex {
 
         TableMetadataTransformer tbmTransformer = new TableMetadataTransformer(tableName);
 
-        TableMetadata tbm = tbmTransformer.convertBackToTableMetadata(FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, path));
+        TableMetadata tbm = tbmTransformer.convertBackToTableMetadata(FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, tbmTransformer.getTableAttributeStorePath()));
 
         List<String> pKeys = tbm.getPrimaryKeys();
         for (String k : pKeys)
