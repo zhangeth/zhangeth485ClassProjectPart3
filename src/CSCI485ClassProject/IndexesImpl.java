@@ -47,8 +47,8 @@ public class IndexesImpl implements Indexes{
     // create index structure from existing data, so we want to translate records into in memory hashmap, in which
     // the order of the key (hash) is tableName, targetAttrName, attrValue (hashValue), corresponding primaryKey
 
-
-    return null;
+    System.out.println("reached end");
+    return StatusCode.SUCCESS;
   }
 
   @Override
