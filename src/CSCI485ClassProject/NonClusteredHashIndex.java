@@ -35,6 +35,10 @@ public class NonClusteredHashIndex {
         TableMetadata tbm = tbmTransformer.convertBackToTableMetadata(FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, path));
 
         List<String> pKeys = tbm.getPrimaryKeys();
+        for (String k : pKeys)
+        {
+            System.out.println("key: " + k);
+        }
 
         System.out.println("building");
 
