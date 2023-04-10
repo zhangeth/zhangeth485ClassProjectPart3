@@ -48,8 +48,8 @@ public class NonClusteredHashIndex {
             // convert into NonClusteredHashIndexRecord, just one primaryKey
             for (String pKey : pKeys)
             {
-                pkValue.add((long)rec.getValueForGivenAttrName(pKey));
-                System.out.print("pKey" + pKey + " value: " + rec.getValueForGivenAttrName(pKey) + " converted val: " + pkValue);
+                pkValue.addObject(rec.getValueForGivenAttrName(pKey));
+                System.out.print("pKey " + pKey + " value: " + rec.getValueForGivenAttrName(pKey) + " converted val: " + pkValue);
             }
 
             Long attrValue = Long.valueOf((long)rec.getValueForGivenAttrName(targetAttrName).hashCode());
