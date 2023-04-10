@@ -42,6 +42,7 @@ public class NonClusteredHashIndex {
             for (String pKey : pKeys)
             {
                 pKValue = (long)rec.getValueForGivenAttrName(pKey);
+                System.out.print("pKey" + pKey + " value: " + rec.getValueForGivenAttrName(pKey) + " converted val: " + pKValue);
             }
 
             Long attrValue = Long.valueOf((long)rec.getValueForGivenAttrName(targetAttrName).hashCode());
