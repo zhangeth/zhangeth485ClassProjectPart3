@@ -49,7 +49,7 @@ public class NonClusteredHashIndex {
             for (String pKey : pKeys)
             {
                 pkValue.addObject(rec.getValueForGivenAttrName(pKey));
-                System.out.print("pKey " + pKey + " value: " + rec.getValueForGivenAttrName(pKey) + " converted val: " + pkValue.get(0));
+                System.out.print("pKey " + pKey + " value: " + rec.getValueForGivenAttrName(pKey) + " converted val: " + pkValue);
             }
 
             Long attrValue = Long.valueOf((long)rec.getValueForGivenAttrName(targetAttrName).hashCode());
