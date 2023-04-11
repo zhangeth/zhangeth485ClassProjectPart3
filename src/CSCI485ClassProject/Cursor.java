@@ -230,7 +230,7 @@ public class Cursor {
       List<Object> pkObjects = kvPair.getKey().getItems();
 
       int numPK = tableMetadata.getPrimaryKeys().size();
-      Object pkVal = (Tuple)pkObjects.get(keySize - 1);
+      Object pkVal = pkObjects.get(keySize - 1);
 
       Tuple keyTuple = new Tuple();
       keyTuple = keyTuple.addObject(pkVal);
