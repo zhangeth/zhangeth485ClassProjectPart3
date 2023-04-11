@@ -232,6 +232,7 @@ public class Cursor {
 
       Tuple keyTuple = new Tuple();
       keyTuple = keyTuple.add(insideTuple.getLong(0));
+      keyTuple = keyTuple.add(tableMetadata.getPrimaryKeys().get(0));
       System.out.println(keyTuple + " : queried keyTuple");
 
       List<String> path = new ArrayList<>(); path.add(tableName);
