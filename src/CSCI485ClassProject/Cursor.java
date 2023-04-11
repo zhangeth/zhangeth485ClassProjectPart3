@@ -230,10 +230,10 @@ public class Cursor {
       List<Object> pkObjects = kvPair.getKey().getItems();
 
       int numPK = tableMetadata.getPrimaryKeys().size();
-      Object pkVal = pkObjects.get(keySize - 1);
+      Tuple pkVal = Tuple.from(pkObjects.get(keySize - 1));
 
       Tuple keyTuple = new Tuple();
-      keyTuple = keyTuple.add((long)pkVal);
+      keyTuple = keyTuple.add((long)pkVal.get(0));
       keyTuple = keyTuple.add(predicateAttributeName);
       System.out.println(keyTuple + " : queried keyTuple");
       //test getting the valuee of the thingy mabob
