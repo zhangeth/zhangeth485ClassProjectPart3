@@ -225,6 +225,29 @@ public class Cursor {
       FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
       //
       //long iType = kvPair.getKey().get(1);
+      // pk value is last object in key
+      int keySize = kvPair.getKey().getItems().size();
+      List<Object> pkObjects = kvPair.getKey().getItems();
+
+      int numPK = tableMetadata.getPrimaryKeys().size();
+      Object pkVal = (Tuple)pkObjects.get(keySize - 1);
+
+      Tuple keyTuple = new Tuple();
+      keyTuple = keyTuple.addObject(pkVal);
+      keyTuple = keyTuple.add(predicateAttributeName);
+      //test getting the valuee of the thingy mabob
+      List<String> path = new ArrayList<>(); path.add(tableName);
+      FDBKVPair p = FDBHelper.getCertainKeyValuePairInSubdirectory(directorySubspace, tx, keyTuple, path);
+      System.out.println(p.getValue() + " Value found");
+
+      // pkVal, attrName Value: attrValue
+
+      // get pkName
+      tableMetadata.getPrimaryKeys().get(0);
+
+      // make iterator for the main data
+
+
       for (Object o : kvPair.getKey().getItems())
       {
         System.out.print("Object: " + o.toString());
