@@ -1,18 +1,16 @@
 package CSCI485ClassProject;
 
 import CSCI485ClassProject.fdb.FDBHelper;
-import CSCI485ClassProject.fdb.FDBKVPair;
 import CSCI485ClassProject.models.Record;
 import CSCI485ClassProject.models.TableMetadata;
 import com.apple.foundationdb.Database;
 import com.apple.foundationdb.Transaction;
-import com.apple.foundationdb.directory.DirectorySubspace;
 import com.apple.foundationdb.tuple.Tuple;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NonClusteredHashIndex {
+public class NonClusteredIndex {
 
     //public static HashMap<String, >
     private static RecordsImpl recordsImpl;
