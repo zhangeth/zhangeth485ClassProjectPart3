@@ -233,7 +233,7 @@ public class Cursor {
       Object pkVal = pkObjects.get(keySize - 1);
 
       Tuple keyTuple = new Tuple();
-      keyTuple = keyTuple.addObject(pkVal);
+      keyTuple = keyTuple.add((long)pkVal);
       keyTuple = keyTuple.add(predicateAttributeName);
       System.out.println(keyTuple + " : queried keyTuple");
       //test getting the valuee of the thingy mabob
