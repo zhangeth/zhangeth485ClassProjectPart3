@@ -228,12 +228,12 @@ public class Cursor {
       // pk value is last object in key
       int keySize = kvPair.getKey().getItems().size();
       Tuple kT = kvPair.getKey();
-      List<Object> kt2 = (List<Object>) kT.get(kT.size() - 1);
+      Tuple insideTuple = kT.getNestedTuple(kT.size() - 1);
 
       int numPK = tableMetadata.getPrimaryKeys().size();
 
       Tuple keyTuple = new Tuple();
-      keyTuple = keyTuple.add(kt2.get(0));
+      keyTuple = keyTuple.add(insideTuple.getLong(0));
       keyTuple = keyTuple.add(predicateAttributeName);
       System.out.println(keyTuple + " : queried keyTuple");
       //test getting the valuee of the thingy mabob
