@@ -41,7 +41,7 @@ public class IndexesImpl implements Indexes{
     // for now, assume it's a non_clustered_hash_index, ignore second type
     // create index structure from existing data, so we want to translate records into in memory hashmap, in which
     // the order of the key (hash) is tableName, targetAttrName, attrValue (hashValue), corresponding primaryKey
-    tablePath.add("Email");
+    tablePath.add("EmailIndex");
     // check subspace
     List<FDBKVPair> list =  FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, tablePath);
 
