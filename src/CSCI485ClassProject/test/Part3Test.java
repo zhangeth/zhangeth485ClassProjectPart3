@@ -175,6 +175,8 @@ public class Part3Test {
 
   @Test
   public void unitTest2() {
+    System.out.println("Test 2 starting");
+
     assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, Salary, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
     Cursor cursor = records.openCursor(EmployeeTableName, Salary, 75, ComparisonOperator.LESS_THAN, Cursor.Mode.READ, true);
 

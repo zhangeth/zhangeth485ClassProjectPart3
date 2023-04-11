@@ -87,7 +87,7 @@ public class FDBHelper {
     return subpaths;
   }
 
-  public static boolean doesIndexExist(Database db, Transaction tx, String tableName, String attrName)
+  public static boolean doesIndexExist(Transaction tx, String tableName, String attrName)
   {
     List<String> idxPath = new ArrayList<>();
 
@@ -101,7 +101,7 @@ public class FDBHelper {
     return false;
   }
 
-  public static List<String> getIndexPath(Database db, Transaction tx, String tableName, String attrName)
+  public static List<String> getIndexPath(Transaction tx, String tableName, String attrName)
   {
     List<String> idxPath = new ArrayList<>();
 
@@ -113,6 +113,21 @@ public class FDBHelper {
       return idxPath;
     }
     return null;
+  }
+
+  public static DirectorySubspace getIndexSubspace(Transaction tx, String tableName, String attrName)
+  {
+    return FDBHelper.openSubspace(tx, getIndexPath(tx, tableName, attrName));
+  }
+
+  public static FDBKVPair convertKeyValueToFDBKVPair(Transaction tx, List<String> path, KeyValue kv)
+  {
+    DirectorySubspace subspace = openSubspace(tx, path);
+
+    Tuple keyTuple = subspace.unpack(kv.getKey());
+    Tuple valueTuple = Tuple.from(kv.getValue());
+
+    return new FDBKVPair(path, keyTuple, valueTuple);
   }
 
 

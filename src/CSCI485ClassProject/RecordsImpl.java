@@ -167,7 +167,7 @@ public class RecordsImpl implements Records{
     // use index structure if exists
     if (isUsingIndex)
     {
-      if (FDBHelper.doesIndexExist(db, tx, tableName, attrName))
+      if (FDBHelper.doesIndexExist(tx, tableName, attrName))
       {
         cursor = new Cursor(mode, tableName, tblMetadata, tx, true);
       }
@@ -176,9 +176,10 @@ public class RecordsImpl implements Records{
         return null;
       }
     }
+    else {
+      cursor = new Cursor(mode, tableName, tblMetadata, tx);
+    }
 
-
-    cursor = new Cursor(mode, tableName, tblMetadata, tx);
     Record.Value attrVal = new Record.Value();
     StatusCode initVal = attrVal.setValue(attrValue);
     if (initVal != StatusCode.SUCCESS) {

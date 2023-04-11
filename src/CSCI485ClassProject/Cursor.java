@@ -2,10 +2,7 @@ package CSCI485ClassProject;
 
 import CSCI485ClassProject.fdb.FDBHelper;
 import CSCI485ClassProject.fdb.FDBKVPair;
-import CSCI485ClassProject.models.AttributeType;
-import CSCI485ClassProject.models.ComparisonOperator;
-import CSCI485ClassProject.models.Record;
-import CSCI485ClassProject.models.TableMetadata;
+import CSCI485ClassProject.models.*;
 import CSCI485ClassProject.utils.ComparisonUtils;
 import com.apple.foundationdb.KeyValue;
 import com.apple.foundationdb.Transaction;
@@ -53,6 +50,8 @@ public class Cursor {
 
   private DirectorySubspace directorySubspace;
 
+  private DirectorySubspace indexSubspace;
+
   private boolean isMoved = false;
   private FDBKVPair currentKVPair = null;
 
@@ -65,6 +64,7 @@ public class Cursor {
     this.tx = tx;
   }
 
+  // assumes index structure exists, checks exists in recordsImpl
   public Cursor(Mode mode, String tableName, TableMetadata tableMetadata, Transaction tx, boolean isUsingIndex)
   {
     this(mode, tableName, tableMetadata, tx);
@@ -132,6 +132,13 @@ public class Cursor {
     this.predicateAttributeValue = value;
     this.predicateOperator = operator;
     this.isPredicateEnabled = true;
+
+    // if using index subspace
+    if (isUsingIndex)
+    {
+      indexSubspace = FDBHelper.getIndexSubspace(tx, tableName, attrName);
+    }
+
   }
 
 
@@ -202,11 +209,47 @@ public class Cursor {
     return currentRecord;
   }
 
+  // TODO
+  public Record moveToNextUsingIndex()
+  {
+    AsyncIterable<KeyValue> indexIterable  = FDBHelper.getKVPairIterableOfDirectory(indexSubspace, tx, false);
+    AsyncIterator<KeyValue> indexIterator = indexIterable.iterator();
+
+    // read index type from first element
+    IndexType idxType = IndexType.NON_CLUSTERED_HASH_INDEX;
+
+    if (indexIterator.hasNext())
+    {
+      KeyValue kv = indexIterator.next();
+
+      FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
+      //
+      //long iType = kvPair.getKey().get(1);
+      for (Object o : kvPair.getKey().getItems())
+      {
+        System.out.print("Object: " + o.toString());
+      }
+      System.out.println();
+
+    }
+    // get keyQuery using predicate value
+
+    Tuple queryTuple = new Tuple();
+    queryTuple = queryTuple.add(tableName);
+    //queryTuple = queryTuple.add()
+    return null;
+  }
+
   public Record getFirst() {
     if (isInitialized) {
       return null;
     }
     isInitializedToLast = false;
+
+    if (isUsingIndex)
+    {
+      return moveToNextUsingIndex();
+    }
 
     Record record = moveToNextRecord(true);
     if (isPredicateEnabled) {
@@ -254,6 +297,15 @@ public class Cursor {
   public boolean hasNext() {
     return isInitialized && iterator != null && (iterator.hasNext() || currentKVPair != null);
   }
+
+  // need method to traverse index Structure
+  public void readTypeOfIndex()
+  {
+
+  }
+
+
+  // need method to convert obtained pkValue from indexStructure to use in obtaining mainData to make record
 
   public Record next(boolean isGetPrevious) {
     if (!isInitialized) {
