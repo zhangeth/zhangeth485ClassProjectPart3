@@ -87,6 +87,35 @@ public class FDBHelper {
     return subpaths;
   }
 
+  public static boolean doesIndexExist(Database db, Transaction tx, String tableName, String attrName)
+  {
+    List<String> idxPath = new ArrayList<>();
+
+    String str = attrName + "Index";
+    idxPath.add(tableName); idxPath.add(str);
+
+    if (doesSubdirectoryExists(tx, idxPath))
+    {
+      return true;
+    }
+    return false;
+  }
+
+  public static List<String> getIndexPath(Database db, Transaction tx, String tableName, String attrName)
+  {
+    List<String> idxPath = new ArrayList<>();
+
+    String str = attrName + "Index";
+    idxPath.add(tableName); idxPath.add(str);
+
+    if (doesSubdirectoryExists(tx, idxPath))
+    {
+      return idxPath;
+    }
+    return null;
+  }
+
+
   public static List<FDBKVPair> getAllKeyValuePairsOfSubdirectory(Database db, Transaction tx, List<String> path) {
     List<FDBKVPair> res = new ArrayList<>();
     if (!doesSubdirectoryExists(tx, path)) {

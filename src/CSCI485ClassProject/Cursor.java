@@ -56,12 +56,21 @@ public class Cursor {
   private boolean isMoved = false;
   private FDBKVPair currentKVPair = null;
 
+  private boolean isUsingIndex;
+
   public Cursor(Mode mode, String tableName, TableMetadata tableMetadata, Transaction tx) {
     this.mode = mode;
     this.tableName = tableName;
     this.tableMetadata = tableMetadata;
     this.tx = tx;
   }
+
+  public Cursor(Mode mode, String tableName, TableMetadata tableMetadata, Transaction tx, boolean isUsingIndex)
+  {
+    this(mode, tableName, tableMetadata, tx);
+    this.isUsingIndex = isUsingIndex;
+  }
+
 
   public void setTx(Transaction tx) {
     this.tx = tx;
@@ -156,6 +165,7 @@ public class Cursor {
     boolean isSavePK = false;
     Tuple pkValTuple = new Tuple();
     Tuple tempPkValTuple = null;
+
     if (isMoved && currentKVPair != null) {
       fdbkvPairs.add(currentKVPair);
       pkValTuple = getPrimaryKeyValTuple(currentKVPair.getKey());
