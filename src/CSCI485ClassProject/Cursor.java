@@ -237,6 +237,8 @@ public class Cursor {
 
       Tuple test2 = keyTuple.add(predicateAttributeName);
 
+      System.out.println("records Transformer: " + recordsTransformer.getTableRecordPath());
+
       DirectorySubspace subspace = FDBHelper.createOrOpenSubspace(tx, recordsTransformer.getTableRecordPath());
       // verify directory subspace
       // List<FDBKVPair> pairs = FDBHelper.getAllKeyValuePairsOfSubdirectory(, tx, )
