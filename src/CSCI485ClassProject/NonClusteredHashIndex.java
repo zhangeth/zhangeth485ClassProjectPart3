@@ -17,10 +17,8 @@ public class NonClusteredHashIndex {
     //public static HashMap<String, >
     private static RecordsImpl recordsImpl;
 
-    public static List<NonClusteredHashIndexRecord> buildNonClusteredHashIndex(Database db, Transaction tx, String tableName, String targetAttrName)
+    public static void buildNonClusteredHashIndex(Database db, Transaction tx, String tableName, String targetAttrName)
     {
-
-        List<NonClusteredHashIndexRecord> res = new ArrayList<>();
         recordsImpl = new RecordsImpl();
         // actually make cursor to iterate over all records
 
@@ -35,12 +33,6 @@ public class NonClusteredHashIndex {
         TableMetadata tbm = tbmTransformer.convertBackToTableMetadata(FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, tbmTransformer.getTableAttributeStorePath()));
 
         List<String> pKeys = tbm.getPrimaryKeys();
-        for (String k : pKeys)
-        {
-            System.out.println("key: " + k);
-        }
-
-        System.out.println("building");
 
         while (rec != null)
         {
@@ -49,19 +41,24 @@ public class NonClusteredHashIndex {
             for (String pKey : pKeys)
             {
                 pkValue = pkValue.addObject(rec.getValueForGivenAttrName(pKey));
-                System.out.print("Tuple: " + pkValue);
             }
-
 
             Long attrValue = Long.valueOf(rec.getValueForGivenAttrName(targetAttrName).hashCode());
 
             NonClusteredHashIndexRecord nchRecord = new NonClusteredHashIndexRecord(tableName, targetAttrName, attrValue, pkValue);
-            // get pkValue
-            res.add(nchRecord);
+
+            nchRecord.setRecord(tx);
 
             rec = recordsImpl.getNext(cursor);
         }
 
-        return res;
+        FDBHelper.commitTransaction(tx);
+
     }
+
+    public static void commitIndex()
+            // keyTuple: [tableName, attrName, hashAttrValue, pkValu], valueTuple; ""
+            // instead of going through whole list, maybe do one by one commit in above
+    {}
+
 }

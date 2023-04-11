@@ -1,7 +1,14 @@
 package CSCI485ClassProject;
 
+import CSCI485ClassProject.fdb.FDBHelper;
+import CSCI485ClassProject.fdb.FDBKVPair;
 import CSCI485ClassProject.models.IndexType;
+import com.apple.foundationdb.Transaction;
+import com.apple.foundationdb.directory.DirectorySubspace;
 import com.apple.foundationdb.tuple.Tuple;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NonClusteredHashIndexRecord {
 
@@ -29,6 +36,23 @@ public class NonClusteredHashIndexRecord {
         Tuple valueTuple = new Tuple();
         return valueTuple;
     }
+
+    public void setRecord(Transaction tx)
+    {
+        String indexSubstr = hashAttrName + "Index";
+
+        List<String> indexSubspacePath = new ArrayList<>();
+        indexSubspacePath.add(tableName); indexSubspacePath.add(indexSubstr);
+
+        DirectorySubspace indexSubspace = FDBHelper.createOrOpenSubspace(tx, indexSubspacePath);
+        // make key value pair
+        FDBKVPair kvPair = new FDBKVPair(indexSubspacePath, getKeyTuple(), getValueTuple());
+
+        FDBHelper.setFDBKVPair(indexSubspace, tx, kvPair);
+    }
+
+
+
 
     public static Tuple getPrefixQueryTuple(String tableName, String hashAttrName, Long hashValue) {
         Tuple keyTuple = new Tuple();

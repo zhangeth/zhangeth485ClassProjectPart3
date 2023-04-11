@@ -1,6 +1,7 @@
 package CSCI485ClassProject;
 
 import CSCI485ClassProject.fdb.FDBHelper;
+import CSCI485ClassProject.fdb.FDBKVPair;
 import CSCI485ClassProject.models.IndexType;
 import CSCI485ClassProject.models.Record;
 import com.apple.foundationdb.Database;
@@ -36,16 +37,18 @@ public class IndexesImpl implements Indexes{
     DirectorySubspace tableSubspace = FDBHelper.createOrOpenSubspace(tx, tablePath);
 
     // loop through table subspace and make NonClusteredHashIndex
-    List<NonClusteredHashIndexRecord> nchRecords = NonClusteredHashIndex.buildNonClusteredHashIndex(db, tx, tableName, attrName);
-
-    // verify that it's building the correct thing
-    for (NonClusteredHashIndexRecord x: nchRecords)
-    {
-      System.out.println(x.toString());
-    }
+    NonClusteredHashIndex.buildNonClusteredHashIndex(db, tx, tableName, attrName);
     // for now, assume it's a non_clustered_hash_index, ignore second type
     // create index structure from existing data, so we want to translate records into in memory hashmap, in which
     // the order of the key (hash) is tableName, targetAttrName, attrValue (hashValue), corresponding primaryKey
+    tablePath.add("Email");
+    // check subspace
+    List<FDBKVPair> list =  FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, tablePath);
+
+    for (FDBKVPair p : list)
+    {
+      System.out.println(p.getKey() + " : key" + p.getValue() + ": val");
+    }
 
     System.out.println("reached end");
     return StatusCode.SUCCESS;
