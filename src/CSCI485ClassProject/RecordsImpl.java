@@ -174,7 +174,7 @@ public class RecordsImpl implements Records{
         List<String> p = new ArrayList<>(); p.add(tableName);
         for (FDBKVPair kv : FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, p))
         {
-          System.out.println("kv key: " + kv.getKey());
+          System.out.println("kv key: " + kv.getKey().toString());
         }
 
         cursor = new Cursor(mode, tableName, tblMetadata, tx, true);
