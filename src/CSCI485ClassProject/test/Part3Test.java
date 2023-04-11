@@ -172,7 +172,7 @@ public class Part3Test {
     System.out.println("Test1 passed!");
   }
 
-  /*
+
   @Test
   public void unitTest2() {
     assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, Salary, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
@@ -199,7 +199,7 @@ public class Part3Test {
     assertNull(records.openCursor(EmployeeTableName, Age, 40, ComparisonOperator.LESS_THAN_OR_EQUAL_TO, Cursor.Mode.READ, true));
     System.out.println("Test2 passed!");
   }
-*/
+
 /*
   @Test
   public void unitTest3() {
