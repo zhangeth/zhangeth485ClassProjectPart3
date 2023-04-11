@@ -170,12 +170,14 @@ public class RecordsImpl implements Records{
     {
       if (FDBHelper.doesIndexExist(tx, tableName, attrName))
       {
-        cursor = new Cursor(mode, tableName, tblMetadata, tx, true);
+        System.out.println("entered");
         List<String> p = new ArrayList<>(); p.add(tableName);
         for (FDBKVPair kv : FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, p))
         {
           System.out.println("kv key: " + kv.getKey());
         }
+        cursor = new Cursor(mode, tableName, tblMetadata, tx, true);
+
       }
       else {
         // index structure doesn't exist
