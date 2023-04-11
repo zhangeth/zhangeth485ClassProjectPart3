@@ -164,6 +164,7 @@ public class RecordsImpl implements Records{
     }
 
     Cursor cursor;
+    System.out.println("yee");
     // use index structure if exists
     if (isUsingIndex)
     {
