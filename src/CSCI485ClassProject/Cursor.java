@@ -212,6 +212,9 @@ public class Cursor {
   // TODO
   public Record moveToNextUsingIndex()
   {
+    recordsTransformer = new RecordsTransformer(getTableName(), getTableMetadata());
+    directorySubspace = FDBHelper.openSubspace(tx, recordsTransformer.getTableRecordPath());
+
     AsyncIterable<KeyValue> indexIterable  = FDBHelper.getKVPairIterableOfDirectory(indexSubspace, tx, false);
     AsyncIterator<KeyValue> indexIterator = indexIterable.iterator();
 
