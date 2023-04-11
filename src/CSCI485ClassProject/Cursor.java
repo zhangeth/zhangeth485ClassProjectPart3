@@ -237,14 +237,15 @@ public class Cursor {
 
       Tuple test2 = keyTuple.add(predicateAttributeName);
 
+      DirectorySubspace subspace = FDBHelper.createOrOpenSubspace(tx, recordsTransformer.getTableRecordPath());
       // verify directory subspace
       // List<FDBKVPair> pairs = FDBHelper.getAllKeyValuePairsOfSubdirectory(, tx, )
-      FDBKVPair keyPair = FDBHelper.getCertainKeyValuePairInSubdirectory(directorySubspace, tx, test2, recordsTransformer.getTableRecordPath());
+      FDBKVPair keyPair = FDBHelper.getCertainKeyValuePairInSubdirectory(subspace, tx, test2, recordsTransformer.getTableRecordPath());
 
       System.out.println("test key: " + keyPair.getKey().toString());
       System.out.println("val of above: " + keyPair.getValue().toString());
 
-      AsyncIterable<KeyValue> searchIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(directorySubspace, tx, keyTuple, false);
+      AsyncIterable<KeyValue> searchIterable = FDBHelper.getKVPairIterableWithPrefixInDirectory(directorySubspace, tx, keyTuple, false);
       AsyncIterator<KeyValue> searchIterator = searchIterable.iterator();
 
       List<FDBKVPair> pairsToBeRecord = new ArrayList<>();
