@@ -5,6 +5,7 @@ import CSCI485ClassProject.fdb.FDBKVPair;
 import CSCI485ClassProject.models.IndexType;
 import CSCI485ClassProject.models.Record;
 import com.apple.foundationdb.Database;
+import com.apple.foundationdb.FDB;
 import com.apple.foundationdb.Transaction;
 import com.apple.foundationdb.directory.DirectorySubspace;
 
@@ -42,13 +43,16 @@ public class IndexesImpl implements Indexes{
     // create index structure from existing data, so we want to translate records into in memory hashmap, in which
     // the order of the key (hash) is tableName, targetAttrName, attrValue (hashValue), corresponding primaryKey
     tablePath.add("EmailIndex");
+
+    Transaction tc = FDBHelper.openTransaction(db);
     // check subspace
-    List<FDBKVPair> list =  FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, tablePath);
+    List<FDBKVPair> list =  FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tc, tablePath);
 
     for (FDBKVPair p : list)
     {
       System.out.println(p.getKey() + " : key" + p.getValue() + ": val");
     }
+
 
     System.out.println("reached end");
     return StatusCode.SUCCESS;
