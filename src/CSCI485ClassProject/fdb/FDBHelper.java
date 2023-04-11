@@ -131,7 +131,6 @@ public class FDBHelper {
     return new FDBKVPair(path, keyTuple, valueTuple);
   }
 
-
   public static List<FDBKVPair> getAllKeyValuePairsOfSubdirectory(Database db, Transaction tx, List<String> path) {
     List<FDBKVPair> res = new ArrayList<>();
     if (!doesSubdirectoryExists(tx, path)) {

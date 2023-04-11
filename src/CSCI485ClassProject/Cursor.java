@@ -223,8 +223,6 @@ public class Cursor {
       KeyValue kv = indexIterator.next();
 
       FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
-      //
-      //long iType = kvPair.getKey().get(1);
       // pk value is last object in key
       int keySize = kvPair.getKey().getItems().size();
       Tuple kT = kvPair.getKey();
@@ -234,28 +232,31 @@ public class Cursor {
 
       Tuple keyTuple = new Tuple();
       keyTuple = keyTuple.add(insideTuple.getLong(0));
-      keyTuple = keyTuple.add(predicateAttributeName);
       System.out.println(keyTuple + " : queried keyTuple");
-      //test getting the valuee of the thingy mabob
+
       List<String> path = new ArrayList<>(); path.add(tableName);
       // List<FDBKVPair> pairs = FDBHelper.getAllKeyValuePairsOfSubdirectory(, tx, )
-      //KeyValue test = directorySubspace.get(k)
-      FDBKVPair p = FDBHelper.getCertainKeyValuePairInSubdirectory(directorySubspace, tx, keyTuple, path);
-      System.out.println(p.getValue() + " Value found");
+      AsyncIterable<KeyValue> searchIterable = FDBHelper.getKVPairIterableWithPrefixInDirectory(directorySubspace, tx, keyTuple, false);
+      AsyncIterator<KeyValue> searchIterator = searchIterable.iterator();
 
-      // pkVal, attrName Value: attrValue
+      List<FDBKVPair> pairsToBeRecord = new ArrayList<>();
 
+      List<String> recordStorePath = recordsTransformer.getTableRecordPath();
+
+      while (searchIterator.hasNext())
+      {
+        pairsToBeRecord.add(FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, searchIterator.next()));
+      }
+      // convert
+      return recordsTransformer.convertBackToRecord(pairsToBeRecord);
       // get pkName
-      tableMetadata.getPrimaryKeys().get(0);
-
-      // make iterator for the main data
-
+/*      tableMetadata.getPrimaryKeys().get(0);
 
       for (Object o : kvPair.getKey().getItems())
       {
         System.out.print("Object: " + o.toString());
       }
-      System.out.println();
+      System.out.println();*/
 
     }
     // get keyQuery using predicate value
