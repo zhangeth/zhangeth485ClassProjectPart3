@@ -176,6 +176,7 @@ public class RecordsImpl implements Records{
         {
           System.out.println("kv key: " + kv.getKey());
         }
+
         cursor = new Cursor(mode, tableName, tblMetadata, tx, true);
 
       }
