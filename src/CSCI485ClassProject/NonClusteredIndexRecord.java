@@ -10,7 +10,7 @@ import com.apple.foundationdb.tuple.Tuple;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NonClusteredHashIndexRecord {
+public class NonClusteredIndexRecord {
 
     private String tableName;
     private static IndexType indexType = IndexType.NON_CLUSTERED_HASH_INDEX;
@@ -18,8 +18,9 @@ public class NonClusteredHashIndexRecord {
     private Long hashValue;
     private Tuple pkValue;
 
-    public NonClusteredHashIndexRecord(String tableName, String hashAttrName, Long hashValue, Tuple pkValue) {
+    public NonClusteredIndexRecord(String tableName, String hashAttrName, Long hashValue, Tuple pkValue, IndexType indexType) {
         this.tableName = tableName;
+        this.indexType = indexType;
         // index type is automatic non-clustered
         this.hashAttrName = hashAttrName;
         this.hashValue = hashValue;
@@ -50,9 +51,6 @@ public class NonClusteredHashIndexRecord {
 
         FDBHelper.setFDBKVPair(indexSubspace, tx, kvPair);
     }
-
-
-
 
     public static Tuple getPrefixQueryTuple(String tableName, String hashAttrName, Long hashValue) {
         Tuple keyTuple = new Tuple();

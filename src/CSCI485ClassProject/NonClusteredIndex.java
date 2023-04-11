@@ -43,9 +43,15 @@ public class NonClusteredIndex {
                 pkValue = pkValue.addObject(rec.getValueForGivenAttrName(pKey));
             }
 
-            Long attrValue = Long.valueOf(rec.getValueForGivenAttrName(targetAttrName).hashCode());
+            Long attrValue = 0L;
+            // if hash type, hash it, otherwise store reg value for sorting purposes
 
-            NonClusteredHashIndexRecord nchRecord = new NonClusteredHashIndexRecord(tableName, targetAttrName, attrValue, pkValue);
+            if (indexType == IndexType.NON_CLUSTERED_HASH_INDEX)
+                attrValue = Long.valueOf(rec.getValueForGivenAttrName(targetAttrName).hashCode());
+            else
+                attrValue = Long.valueOf((long)rec.getValueForGivenAttrName(targetAttrName));
+
+            NonClusteredIndexRecord nchRecord = new NonClusteredIndexRecord(tableName, targetAttrName, attrValue, pkValue, indexType);
 
             nchRecord.setRecord(tx);
 
