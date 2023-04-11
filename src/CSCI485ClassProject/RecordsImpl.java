@@ -172,6 +172,7 @@ public class RecordsImpl implements Records{
       {
         System.out.println("entered");
         List<String> p = new ArrayList<>(); p.add(tableName);
+
         for (FDBKVPair kv : FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, p))
         {
           System.out.println("kv key: " + kv.getKey().toString());
