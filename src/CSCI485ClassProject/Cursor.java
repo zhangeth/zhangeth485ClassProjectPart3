@@ -235,8 +235,11 @@ public class Cursor {
       Tuple keyTuple = new Tuple();
       keyTuple = keyTuple.addObject(pkVal);
       keyTuple = keyTuple.add(predicateAttributeName);
+      System.out.println(keyTuple + " : queried keyTuple");
       //test getting the valuee of the thingy mabob
       List<String> path = new ArrayList<>(); path.add(tableName);
+      // List<FDBKVPair> pairs = FDBHelper.getAllKeyValuePairsOfSubdirectory(, tx, )
+      //KeyValue test = directorySubspace.get(k)
       FDBKVPair p = FDBHelper.getCertainKeyValuePairInSubdirectory(directorySubspace, tx, keyTuple, path);
       System.out.println(p.getValue() + " Value found");
 
