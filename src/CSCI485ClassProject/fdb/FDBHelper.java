@@ -96,6 +96,7 @@ public class FDBHelper {
 
     if (doesSubdirectoryExists(tx, idxPath))
     {
+      System.out.println(attrName + " Index  exists");
       return true;
     }
     return false;
