@@ -136,7 +136,6 @@ public class FDBHelper {
     if (!doesSubdirectoryExists(tx, path)) {
       return res;
     }
-    System.out.println("printing butts");
 
     DirectorySubspace dir = FDBHelper.createOrOpenSubspace(tx, path);
     Range range = dir.range();

@@ -232,12 +232,12 @@ public class Cursor {
 
       Tuple keyTuple = new Tuple();
       keyTuple = keyTuple.add(insideTuple.getLong(0));
-      keyTuple = keyTuple.add(tableMetadata.getPrimaryKeys().get(0));
+      // keyTuple = keyTuple.add(tableMetadata.getPrimaryKeys().get(0));
       System.out.println(keyTuple + " : queried keyTuple");
 
       List<String> path = new ArrayList<>(); path.add(tableName);
       // List<FDBKVPair> pairs = FDBHelper.getAllKeyValuePairsOfSubdirectory(, tx, )
-      AsyncIterable<KeyValue> searchIterable = FDBHelper.getKVPairIterableWithPrefixInDirectory(directorySubspace, tx, keyTuple, false);
+      AsyncIterable<KeyValue> searchIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(directorySubspace, tx, insideTuple, false);
       AsyncIterator<KeyValue> searchIterator = searchIterable.iterator();
 
       List<FDBKVPair> pairsToBeRecord = new ArrayList<>();
