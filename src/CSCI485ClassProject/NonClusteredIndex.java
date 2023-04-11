@@ -1,6 +1,7 @@
 package CSCI485ClassProject;
 
 import CSCI485ClassProject.fdb.FDBHelper;
+import CSCI485ClassProject.models.IndexType;
 import CSCI485ClassProject.models.Record;
 import CSCI485ClassProject.models.TableMetadata;
 import com.apple.foundationdb.Database;
@@ -15,8 +16,9 @@ public class NonClusteredIndex {
     //public static HashMap<String, >
     private static RecordsImpl recordsImpl;
 
-    public static void buildNonClusteredHashIndex(Database db, Transaction tx, String tableName, String targetAttrName)
+    public static void buildNonClusteredIndex(Database db, Transaction tx, String tableName, String targetAttrName, IndexType indexType)
     {
+
         recordsImpl = new RecordsImpl();
         // actually make cursor to iterate over all records
 

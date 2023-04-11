@@ -34,8 +34,16 @@ public class IndexesImpl implements Indexes{
     // make subdirectory for index for the attrName
     DirectorySubspace tableSubspace = FDBHelper.createOrOpenSubspace(tx, tablePath);
 
+    List<String> indexPath = tablePath;
+    indexPath.add(attrName + "Index");
+
+    if (FDBHelper.doesSubdirectoryExists(tx,indexPath))
+    {
+      return StatusCode.INDEX_ALREADY_EXISTS_ON_ATTRIBUTE;
+    }
+
     // loop through table subspace and make NonClusteredHashIndex
-    NonClusteredIndex.buildNonClusteredHashIndex(db, tx, tableName, attrName);
+    NonClusteredIndex.buildNonClusteredIndex(db, tx, tableName, attrName, indexType);
     // for now, assume it's a non_clustered_hash_index, ignore second type
     // create index structure from existing data, so we want to translate records into in memory hashmap, in which
     // the order of the key (hash) is tableName, targetAttrName, attrValue (hashValue), corresponding primaryKey
