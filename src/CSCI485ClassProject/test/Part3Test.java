@@ -191,6 +191,8 @@ public class Part3Test {
       }
 
       long ssn = i;
+      System.out.println("testing: " + i);
+
       Record expectRecord = getExpectedEmployeeRecord(ssn);
       assertEquals(expectRecord, record);
     }

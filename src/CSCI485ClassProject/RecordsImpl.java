@@ -164,20 +164,20 @@ public class RecordsImpl implements Records{
     }
 
     Cursor cursor;
-    System.out.println("yee");
+    //System.out.println("yee");
     // use index structure if exists
     if (isUsingIndex)
     {
       if (FDBHelper.doesIndexExist(tx, tableName, attrName))
       {
-        System.out.println("entered");
+        /*System.out.println("entered");
         RecordsTransformer recordsTransformer = new RecordsTransformer(tableName, getTableMetadataByTableName(tx, tableName));
-        List<String> recordStorePath = recordsTransformer.getTableRecordPath();
+        List<String> recordStorePath = recordsTransformer.getTableRecordPath();*/
 
-        for (FDBKVPair kv : FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, recordStorePath))
+    /*  for (FDBKVPair kv : FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, recordStorePath))
         {
           System.out.println("kv key: " + kv.getKey().toString());
-        }
+        }*/
 
         cursor = new Cursor(mode, tableName, tblMetadata, tx, true);
 

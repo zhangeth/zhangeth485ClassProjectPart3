@@ -210,10 +210,17 @@ public class Cursor {
   }
 
   // TODO
-  public Record moveToNextUsingIndex()
+  public Record moveToNextUsingIndex(boolean isInitializing)
   {
-    recordsTransformer = new RecordsTransformer(getTableName(), getTableMetadata());
-    directorySubspace = FDBHelper.openSubspace(tx, recordsTransformer.getTableRecordPath());
+    if (isInitializing) {
+      recordsTransformer = new RecordsTransformer(getTableName(), getTableMetadata());
+      directorySubspace = FDBHelper.openSubspace(tx, recordsTransformer.getTableRecordPath());
+      AsyncIterable<KeyValue> fdbIterable = FDBHelper.getKVPairIterableOfDirectory(directorySubspace, tx, isInitializedToLast);
+      if (fdbIterable != null)
+        iterator = fdbIterable.iterator();
+
+      isInitialized = true;
+    }
 
     AsyncIterable<KeyValue> indexIterable  = FDBHelper.getKVPairIterableOfDirectory(indexSubspace, tx, false);
     AsyncIterator<KeyValue> indexIterator = indexIterable.iterator();
@@ -261,6 +268,7 @@ public class Cursor {
       {
         pairsToBeRecord.add(FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, searchIterator.next()));
       }
+
       // convert
       return recordsTransformer.convertBackToRecord(pairsToBeRecord);
       // get pkName
@@ -289,7 +297,7 @@ public class Cursor {
 
     if (isUsingIndex)
     {
-      return moveToNextUsingIndex();
+      return moveToNextUsingIndex(true);
     }
 
     Record record = moveToNextRecord(true);
