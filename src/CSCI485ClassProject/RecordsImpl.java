@@ -171,9 +171,10 @@ public class RecordsImpl implements Records{
       if (FDBHelper.doesIndexExist(tx, tableName, attrName))
       {
         System.out.println("entered");
-        List<String> p = new ArrayList<>(); p.add(tableName);
+        RecordsTransformer recordsTransformer = new RecordsTransformer(tableName, getTableMetadataByTableName(tx, tableName));
+        List<String> recordStorePath = recordsTransformer.getTableRecordPath();
 
-        for (FDBKVPair kv : FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, p))
+        for (FDBKVPair kv : FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, recordStorePath))
         {
           System.out.println("kv key: " + kv.getKey().toString());
         }
