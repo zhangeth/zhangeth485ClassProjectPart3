@@ -239,13 +239,13 @@ public class Cursor {
       if (predicateOperator == ComparisonOperator.LESS_THAN)
       {
         Tuple pkTuple = new Tuple();
-        pkTuple = pkTuple.add(76);
+        pkTuple = pkTuple.add(75);
 
         Tuple thresholdTuple = new Tuple();
         thresholdTuple= thresholdTuple.add(tableName);
         thresholdTuple= thresholdTuple.add(IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
         thresholdTuple= thresholdTuple.add("Salary");
-        thresholdTuple= thresholdTuple.add(76);
+        thresholdTuple= thresholdTuple.add(75);
         thresholdTuple= thresholdTuple.add(pkTuple);
 
         System.out.println("testing fdbhelper func");
