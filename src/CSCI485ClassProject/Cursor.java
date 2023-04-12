@@ -252,7 +252,7 @@ public class Cursor {
       {
         // read typing
 
-        long typeCode = (int)keyTuple.getLong(1);
+        int typeCode = (int)keyTuple.getLong(1);
         if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal())
         {
           System.out.println("B_PLUS entered");
@@ -274,9 +274,11 @@ public class Cursor {
 
       while (mainDataIterator.hasNext())
       {
+        System.out.println("making record");
         pairsToBeRecord.add(FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, mainDataIterator.next()));
       }
       Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
+
       for (Map.Entry e :  res.getMapAttrNameToValue().entrySet())
       {
         System.out.print("key: " + e.getKey() + ", val: " + e.getValue());
