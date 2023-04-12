@@ -251,6 +251,9 @@ public class Cursor {
         System.out.println("testing fdbhelper func");
         System.out.println(predicateAttributeValue.getValue());
         Tuple tup = new Tuple();
+        tup = tup.add(tableName);
+        tup= tup.add(IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
+        tup= tup.add("Salary");
         tup = tup.addObject(predicateAttributeValue.getValue());
 
         //indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
