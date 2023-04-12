@@ -67,34 +67,6 @@ public class NonClusteredIndex {
 
     }
 
-    public static void insertIndex(Database db, Transaction tx, String tableName, String targetAttrName, Object targetAttrVal, Tuple pkVal)
-    {
-        // read indexType
-        DirectorySubspace indexSubspace = FDBHelper.getIndexSubspace(tx, tableName, targetAttrName);
-        AsyncIterable<KeyValue> indexIterable  = FDBHelper.getKVPairIterableOfDirectory(indexSubspace, tx, false);
-        AsyncIterator<KeyValue> indexIterator = indexIterable.iterator();
-        FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, targetAttrName), indexIterator.next());
-        Tuple keyTuple = kvPair.getKey();
-
-        IndexType idxType;
-        // read typing, index type stored in second element in keyTuple
-        int typeCode = (int)keyTuple.getLong(1);
-        if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal())
-        {
-            idxType = IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX;
-            System.out.println("B_PLUS type");
-        }
-        else {
-            idxType = IndexType.NON_CLUSTERED_HASH_INDEX;
-        }
-        // otherwise, don't change because set to hash by default
-        System.out.println("typeCode : " + typeCode);
-
-        NonClusteredIndexRecord rec = new NonClusteredIndexRecord(tableName, targetAttrName, (Long)targetAttrVal, pkVal, idxType);
-        rec.setRecord(tx);
-
-    }
-
 
     public static void commitIndex()
             // keyTuple: [tableName, attrName, hashAttrValue, pkValu], valueTuple; ""
