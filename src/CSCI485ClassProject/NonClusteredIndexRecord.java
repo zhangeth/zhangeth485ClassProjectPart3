@@ -29,7 +29,7 @@ public class NonClusteredIndexRecord {
 
     public Tuple getKeyTuple() {
         Tuple keyTuple = new Tuple();
-        keyTuple = keyTuple.add(tableName).add(indexType.hashCode()).add(hashAttrName).add(hashValue).add(pkValue);
+        keyTuple = keyTuple.add(tableName).add(indexType.ordinal()).add(hashAttrName).add(hashValue).add(pkValue);
         return keyTuple;
     }
 

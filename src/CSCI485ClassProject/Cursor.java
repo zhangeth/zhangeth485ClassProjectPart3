@@ -11,10 +11,7 @@ import com.apple.foundationdb.async.AsyncIterator;
 import com.apple.foundationdb.directory.DirectorySubspace;
 import com.apple.foundationdb.tuple.Tuple;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static CSCI485ClassProject.RecordsTransformer.getPrimaryKeyValTuple;
 
@@ -254,8 +251,9 @@ public class Cursor {
       if (isIndexTypeInitialized)
       {
         // read typing
-        long typeCode = keyTuple.getLong(1);
-        if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.hashCode())
+
+        long typeCode = (int)keyTuple.getLong(1);
+        if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal())
         {
           System.out.println("B_PLUS entered");
           indexType = IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX;
@@ -278,9 +276,13 @@ public class Cursor {
       {
         pairsToBeRecord.add(FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, mainDataIterator.next()));
       }
-
+      Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
+      for (Map.Entry e :  res.getMapAttrNameToValue().entrySet())
+      {
+        System.out.print("key: " + e.getKey() + ", val: " + e.getValue());
+      }
       // convert
-      return recordsTransformer.convertBackToRecord(pairsToBeRecord);
+      return res;
 
     }
     // get keyQuery using predicate value
