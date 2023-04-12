@@ -40,6 +40,8 @@ public class Cursor {
 
   private boolean isInitializedToLast = false;
 
+  private boolean isIndexTypeInitialized = false;
+
   private final Mode mode;
 
   private AsyncIterator<KeyValue> iterator = null;
@@ -47,7 +49,7 @@ public class Cursor {
   private AsyncIterator<KeyValue> indexIterator = null;
 
   // by default is hash
-  private IndexType indexType = IndexType.NON_CLUSTERED_HASH_INDEX
+  private IndexType indexType = IndexType.NON_CLUSTERED_HASH_INDEX;
 
   private Record currentRecord = null;
 
@@ -248,6 +250,20 @@ public class Cursor {
       FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
 
       Tuple keyTuple = kvPair.getKey();
+
+      if (isIndexTypeInitialized)
+      {
+        // read typing
+        long typeCode = keyTuple.getLong(1);
+        if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.hashCode())
+        {
+          System.out.println("B_PLUS entered");
+          indexType = IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX;
+        }
+        // otherwise, don't change because set to hash by default
+        isIndexTypeInitialized = true;
+      }
+
       Tuple insidePrimaryTuple = keyTuple.getNestedTuple(keyTuple.size() - 1);
 
       System.out.println(insidePrimaryTuple + " : queried primaryTuple");
