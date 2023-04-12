@@ -370,12 +370,10 @@ public class Part3Test {
 
     tableManager.dropAllTables();
 
-/*    // original numbers
     int numOfRecords = 1000000;
-    int numOfQueries = 10000;*/
-
-    int numOfRecords = 10000;
-    int numOfQueries = 1000;
+    int numOfQueries = 10000;
+/*    int numOfRecords = 10000;
+    int numOfQueries = 1000;*/
 
     String INT0 = "INT0";
     String INT1 = "INT1";
