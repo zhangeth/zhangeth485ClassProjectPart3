@@ -259,6 +259,7 @@ public class Cursor {
           indexType = IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX;
         }
         // otherwise, don't change because set to hash by default
+        System.out.println("typeCode : " + typeCode + ", ordinalVal: " + IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
         isIndexTypeInitialized = true;
       }
 
@@ -275,7 +276,11 @@ public class Cursor {
       while (mainDataIterator.hasNext())
       {
         System.out.println("making record");
-        pairsToBeRecord.add(FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, mainDataIterator.next()));
+        KeyValue itKV = mainDataIterator.next();
+        System.out.println(itKV.toString());
+        FDBKVPair itPair = FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, itKV);
+        System.out.print(itPair.getKey().toString() + " k, v: " + itPair.getValue().toString());
+        pairsToBeRecord.add(itPair);
       }
 
       Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
