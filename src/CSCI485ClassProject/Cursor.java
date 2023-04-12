@@ -269,6 +269,7 @@ public class Cursor {
     // get pk Value
     if (indexIterator.hasNext())
     {
+
       FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
 
       // call next on indexIterator
@@ -297,12 +298,12 @@ public class Cursor {
 
       Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
 
-/*      System.out.println("Printing Map");
+      System.out.println("Printing Map");
       // convert
       for (Map.Entry<String, Record.Value> e : res.getMapAttrNameToValue().entrySet())
       {
         System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().getValue().toString());
-      }*/
+      }
       return res;
 
     }
