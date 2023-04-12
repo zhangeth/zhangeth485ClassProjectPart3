@@ -227,7 +227,10 @@ public class Cursor {
       recordsTransformer = new RecordsTransformer(getTableName(), getTableMetadata());
       directorySubspace = FDBHelper.openSubspace(tx, recordsTransformer.getTableRecordPath());
       recordStorePath = recordsTransformer.getTableRecordPath();
-
+      if (indexSubspace == null)
+      {
+        indexSubspace = FDBHelper.getIndexSubspace(tx, tableName, predicateAttributeName);
+      }
       AsyncIterable<KeyValue> fdbIterable = FDBHelper.getKVPairIterableOfDirectory(directorySubspace, tx, isInitializedToLast);
       if (fdbIterable != null)
         iterator = fdbIterable.iterator();
