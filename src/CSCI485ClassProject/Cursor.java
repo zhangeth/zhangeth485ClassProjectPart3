@@ -278,8 +278,9 @@ public class Cursor {
         System.out.println("making record");
         KeyValue itKV = mainDataIterator.next();
         System.out.println(itKV.toString());
+        Tuple valueTuple = Tuple.fromBytes(itKV.getValue());
         FDBKVPair itPair = FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, itKV);
-        System.out.print(itPair.getKey().toString() + " k, v: " + itPair.getValue().get(0).toString());
+        System.out.print(itPair.getKey().toString() + " k, v: " + valueTuple.toString());
         pairsToBeRecord.add(itPair);
       }
 
