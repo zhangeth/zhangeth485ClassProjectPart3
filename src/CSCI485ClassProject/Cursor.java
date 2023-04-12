@@ -10,6 +10,7 @@ import com.apple.foundationdb.async.AsyncIterable;
 import com.apple.foundationdb.async.AsyncIterator;
 import com.apple.foundationdb.directory.DirectorySubspace;
 import com.apple.foundationdb.tuple.Tuple;
+import jdk.internal.dynalink.linker.ConversionComparator;
 
 import java.util.*;
 
@@ -227,12 +228,32 @@ public class Cursor {
       if (fdbIterable != null)
         iterator = fdbIterable.iterator();
 
-      // initialize indexIterator
+      // initialize indexIterator, depending on comparisonOperator, define range
+
       AsyncIterable<KeyValue> indexIterable  = FDBHelper.getKVPairIterableOfDirectory(indexSubspace, tx, false);
       if (indexIterable != null)
       {
         indexIterator = indexIterable.iterator();
       }
+      // hardcoded for test2 for now
+      if (predicateOperator == ComparisonOperator.LESS_THAN)
+      {
+        Tuple pkTuple = new Tuple();
+        pkTuple = pkTuple.add(76);
+
+        Tuple thresholdTuple = new Tuple();
+        thresholdTuple= thresholdTuple.add(tableName);
+        thresholdTuple= thresholdTuple.add(IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
+        thresholdTuple= thresholdTuple.add("Salary");
+        thresholdTuple= thresholdTuple.addObject(predicateAttributeValue);
+        thresholdTuple= thresholdTuple.add(pkTuple);
+
+        System.out.println("testing fdbhelper func");
+        indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
+        indexIterator = indexIterable.iterator();
+        System.out.println("reeeee");
+      }
+
       else
       {
         System.out.println("Index Iterable is null");
@@ -284,13 +305,6 @@ public class Cursor {
       }
 
       Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
-      System.out.println("record: ");
-      System.out.println("ssn: " + res.getValueForGivenAttrName("SSN"));
-      System.out.println("name: " + res.getValueForGivenAttrName("Name"));
-      System.out.println("salary: " + res.getValueForGivenAttrName("Salary"));
-      System.out.println("address: " + res.getValueForGivenAttrName("Address"));
-      System.out.println("email: " + res.getValueForGivenAttrName("Email"));
-      System.out.println("age: " + res.getValueForGivenAttrName("Age"));
 
       System.out.println("Printing Map");
       // convert

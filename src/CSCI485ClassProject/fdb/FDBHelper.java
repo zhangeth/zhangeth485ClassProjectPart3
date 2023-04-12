@@ -46,6 +46,22 @@ public class FDBHelper {
     return tx.getRange(dirRange, ReadTransaction.ROW_LIMIT_UNLIMITED, isReverse);
   }
 
+  // for now, gets range of directory up to threshold index value, exclusive
+  public static AsyncIterable<KeyValue> getKVPairIterableOfDirectoryGivenValue(DirectorySubspace dir, Transaction tx, boolean isReverse, Tuple thresholdKey)
+  {
+    if (dir == null) {
+      return null;
+    }
+    Range range = dir.range();
+    byte[] dirBegin = range.begin;
+    // get threshold beginning bytes
+    KeySelector ks = KeySelector.lastLessOrEqual(dir.pack(thresholdKey));
+    byte[] thresholdBytes = tx.getKey(ks).join();
+    // threshold is excluded
+    return tx.getRange(dirBegin, thresholdBytes, ReadTransaction.ROW_LIMIT_UNLIMITED, isReverse);
+  }
+
+
   public static AsyncIterable<KeyValue> getKVPairIterableWithPrefixInDirectory(DirectorySubspace dir, Transaction tx, Tuple prefixTuple, boolean isReverse) {
     if (dir == null) {
       return null;
