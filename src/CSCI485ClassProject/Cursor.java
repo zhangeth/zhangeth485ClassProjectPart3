@@ -284,12 +284,12 @@ public class Cursor {
           {
             System.out.println("ouch");
           }
-          if (indexIterator != null)
+/*          if (indexIterator != null)
           {
             KeyValue butt = indexIterator.next();
             FDBKVPair pp = FDBHelper.convertKeyValueToFDBKVPair(tx, indexSubspace.getPath(), butt);
             System.out.println("pp: " + pp.getKey());
-          }
+          }*/
           if ( predicateOperator == ComparisonOperator.GREATER_THAN)
           {
             indexIterator.next();
