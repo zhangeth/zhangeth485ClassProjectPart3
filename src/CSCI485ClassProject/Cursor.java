@@ -290,12 +290,13 @@ public class Cursor {
       System.out.println("salary: " + res.getValueForGivenAttrName("Salary"));
       System.out.println("address: " + res.getValueForGivenAttrName("Address"));
       System.out.println("email: " + res.getValueForGivenAttrName("Email"));
+      System.out.println("age: " + res.getValueForGivenAttrName("Age"));
 
       System.out.println("Printing Map");
       // convert
-      for (Map.Entry e : res.getMapAttrNameToValue().entrySet())
+      for (Map.Entry<String, Record.Value> e : res.getMapAttrNameToValue().entrySet())
       {
-        System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().toString());
+        System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().getValue().toString());
       }
       return res;
 
