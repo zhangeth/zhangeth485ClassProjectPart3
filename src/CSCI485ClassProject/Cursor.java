@@ -376,8 +376,14 @@ public class Cursor {
     if (isGetPrevious != isInitializedToLast) {
       return null;
     }
+    Record record = null;
+    if (isUsingIndex)
+    {
+      record = moveToNextUsingIndex(false);
+    }
 
-    Record record = moveToNextRecord(false);
+    record = moveToNextRecord(false);
+
     if (isPredicateEnabled) {
       while (record != null && !doesRecordMatchPredicate(record)) {
         record = moveToNextRecord(false);
