@@ -219,7 +219,7 @@ public class Part3Test {
     System.out.println("Test2 passed!");
   }
 
-/*
+
   @Test
   public void unitTest3() {
     assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, SSN, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
@@ -260,7 +260,7 @@ public class Part3Test {
     assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
     System.out.println("Test3 passed!");
   }
-*/
+
   /*
   @Test
   public void unitTest4() {
