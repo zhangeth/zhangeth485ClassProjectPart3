@@ -126,7 +126,7 @@ public class FDBHelper {
     DirectorySubspace subspace = openSubspace(tx, path);
 
     Tuple keyTuple = subspace.unpack(kv.getKey());
-    Tuple valueTuple = Tuple.from(kv.getValue());
+    Tuple valueTuple = Tuple.fromBytes(kv.getValue());
 
     return new FDBKVPair(path, keyTuple, valueTuple);
   }
