@@ -284,12 +284,12 @@ public class Cursor {
       }
 
       Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
-/*      System.out.println("record: ");
+      System.out.println("record: ");
       System.out.println("ssn: " + res.getValueForGivenAttrName("SSN"));
       System.out.println("name: " + res.getValueForGivenAttrName("Name"));
       System.out.println("salary: " + res.getValueForGivenAttrName("Salary"));
       System.out.println("address: " + res.getValueForGivenAttrName("Address"));
-      System.out.println("email: " + res.getValueForGivenAttrName("Email"));*/
+      System.out.println("email: " + res.getValueForGivenAttrName("Email"));
       // convert
       return res;
 

@@ -144,7 +144,7 @@ public class FDBHelper {
     for (KeyValue kv : kvs) {
       Tuple key = dir.unpack(kv.getKey());
       Tuple value = Tuple.fromBytes(kv.getValue());
-      System.out.println(key.toString());
+      // System.out.println(key.toString());
       res.add(new FDBKVPair(path, key, value));
     }
 
