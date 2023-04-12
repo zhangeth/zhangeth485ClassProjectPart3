@@ -245,7 +245,7 @@ public class Cursor {
         thresholdTuple= thresholdTuple.add(tableName);
         thresholdTuple= thresholdTuple.add(IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
         thresholdTuple= thresholdTuple.add("Salary");
-        thresholdTuple= thresholdTuple.addObject(predicateAttributeValue);
+        thresholdTuple= thresholdTuple.add(76);
         thresholdTuple= thresholdTuple.add(pkTuple);
 
         System.out.println("testing fdbhelper func");
