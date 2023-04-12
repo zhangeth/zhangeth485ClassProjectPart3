@@ -220,6 +220,9 @@ public class Cursor {
   // TODO
   public Record moveToNextUsingIndex(boolean isInitializing)
   {
+
+    KeyValue kv = null;
+
     if (isInitializing) {
       recordsTransformer = new RecordsTransformer(getTableName(), getTableMetadata());
       directorySubspace = FDBHelper.openSubspace(tx, recordsTransformer.getTableRecordPath());
@@ -234,19 +237,14 @@ public class Cursor {
       if (indexIterable != null) {
         indexIterator = indexIterable.iterator();
       }
-      // if less than, all you need is to check pkValue
-      // if less than, and initialized to last, then get iterable using fdbhelper
 
-      // if equal to, just get whether there's a tuple there or not, can do this by getting threshold
-
-      // if greater than and equal to is not in reverse, just go forward using helper and pass in correct key tuple
-      // if greater than, then do above
       if (!indexIterator.hasNext())
         return null;
       // read index type
-      KeyValue kv = indexIterator.next();
+      kv = indexIterator.next();
       FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
       Tuple keyTuple = kvPair.getKey();
+
       if (!isIndexTypeInitialized)
       {
         // read typing, index type stored in second element in keyTuple
@@ -266,96 +264,21 @@ public class Cursor {
       thresholdTuple= thresholdTuple.add(indexType.ordinal());
       thresholdTuple= thresholdTuple.add(predicateAttributeName);
 
-      if (predicateOperator == ComparisonOperator.LESS_THAN)
-      {
-        if (!isInitializedToLast)
-        {
-          //Object val =  ;
-          thresholdTuple= thresholdTuple.addObject((int)predicateAttributeValue.getValue() + 1);
-
-          System.out.println("testing fdbhelper func");
-          System.out.println(predicateAttributeValue.getValue());
-
-          indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
-          //indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, tup, false);
-          indexIterator = indexIterable.iterator();
-        }
-        // going in reverse
-        else
-        {
-          thresholdTuple= thresholdTuple.addObject((int)predicateAttributeValue.getValue() - 1);
-          indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, true);
-          indexIterator = indexIterable.iterator();
-        }
-      }
-      else if (predicateOperator == ComparisonOperator.GREATER_THAN)
-      {
-        if (!isInitializedToLast)
-        {
-          thresholdTuple= thresholdTuple.addObject((int)predicateAttributeValue.getValue() + 1);
-          indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
-          indexIterator = indexIterable.iterator();
-        }
-        // otherwise
-          // just start at beginning, which is the end, and go until threshold is less than or equal to
-
-
-      }
-      else if (predicateOperator == ComparisonOperator.EQUAL_TO || predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO || predicateOperator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO)
-      {
-        thresholdTuple= thresholdTuple.addObject((int)predicateAttributeValue.getValue());
-        if (predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO && !isInitializedToLast)
-          indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
-        else if ((predicateOperator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO && isInitializedToLast) || predicateOperator == ComparisonOperator.EQUAL_TO)
-        {
-          indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, true);
-        }
-        if (indexIterable == null)
-        {
-          System.out.println("problem, not found");
-          return null;
-        }
-        indexIterator = indexIterable.iterator();
-      }
-      else
-      {
-        System.out.println("Index Iterable is null");
-        return null;
-      }
       isInitialized = true;
     }
     // get pk Value
     if (indexIterator.hasNext())
     {
-      KeyValue kv = indexIterator.next();
       FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
 
-      Tuple keyTuple = kvPair.getKey();
+      // call next on indexIterator
+      kv = indexIterator.next();
 
-      if (!isIndexTypeInitialized)
-      {
-        // read typing
-        int typeCode = (int)keyTuple.getLong(1);
-        if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal())
-        {
-          System.out.println("B_PLUS entered");
-          indexType = IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX;
-        }
-        // otherwise, don't change because set to hash by default
-        System.out.println("typeCode : " + typeCode + ", ordinalVal: " + IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
-        isIndexTypeInitialized = true;
-      }
+      Tuple keyTuple = kvPair.getKey();
 
       Tuple insidePrimaryTuple = keyTuple.getNestedTuple(keyTuple.size() - 1);
 
       System.out.println(insidePrimaryTuple + " : queried primaryTuple");
-      if (predicateOperator == ComparisonOperator.GREATER_THAN)
-      {
-        if ((int)insidePrimaryTuple.get(0) > (int)predicateAttributeValue.getValue())
-        {
-          return null;
-        }
-      }
 
       // make record in main data, starting from ssn key
       AsyncIterable<KeyValue> mainDataIterable = FDBHelper.getKVPairIterableWithPrefixInDirectory(directorySubspace, tx, insidePrimaryTuple, false);
@@ -367,8 +290,6 @@ public class Cursor {
       {
         //System.out.println("making record");
         KeyValue itKV = mainDataIterator.next();
-        //System.out.println(itKV.toString());
-        //Tuple valueTuple = Tuple.fromBytes(itKV.getValue());
         FDBKVPair itPair = FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, itKV);
         //System.out.print(itPair.getKey().toString() + " k, v: " + valueTuple.toString());
         pairsToBeRecord.add(itPair);
