@@ -249,7 +249,12 @@ public class Cursor {
         thresholdTuple= thresholdTuple.add(pkTuple);
 
         System.out.println("testing fdbhelper func");
-        indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
+        System.out.println(predicateAttributeValue.getValue());
+        Tuple tup = new Tuple();
+        tup = tup.addObject(predicateAttributeValue.getValue());
+
+        //indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
+        indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, tup, false);
         indexIterator = indexIterable.iterator();
         System.out.println("reeeee");
       }
