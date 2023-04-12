@@ -280,7 +280,7 @@ public class Cursor {
 
       Tuple insidePrimaryTuple = keyTuple.getNestedTuple(keyTuple.size() - 1);
       long primaryVal = Long.valueOf((long)insidePrimaryTuple.get(0));
-      long predicateVal = (long)predicateAttributeValue.getValue();
+      long predicateVal = ((Integer)predicateAttributeValue.getValue()).longValue();
 
       if (predicateOperator == ComparisonOperator.LESS_THAN && primaryVal >= predicateVal)
       {
