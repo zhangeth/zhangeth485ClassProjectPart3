@@ -224,38 +224,47 @@ public class Cursor {
       recordsTransformer = new RecordsTransformer(getTableName(), getTableMetadata());
       directorySubspace = FDBHelper.openSubspace(tx, recordsTransformer.getTableRecordPath());
       recordStorePath = recordsTransformer.getTableRecordPath();
+
       AsyncIterable<KeyValue> fdbIterable = FDBHelper.getKVPairIterableOfDirectory(directorySubspace, tx, isInitializedToLast);
       if (fdbIterable != null)
         iterator = fdbIterable.iterator();
 
       // initialize indexIterator, depending on comparisonOperator, define range
-
       AsyncIterable<KeyValue> indexIterable  = FDBHelper.getKVPairIterableOfDirectory(indexSubspace, tx, false);
-      if (indexIterable != null)
-      {
+      if (indexIterable != null) {
         indexIterator = indexIterable.iterator();
       }
-      // hardcoded for test2 for now
-      if (predicateOperator == ComparisonOperator.LESS_THAN)
+      if (!indexIterator.hasNext())
+        return null;
+      // read index type
+      KeyValue kv = indexIterator.next();
+      FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
+      Tuple keyTuple = kvPair.getKey();
+      if (!isIndexTypeInitialized)
       {
-        Tuple pkTuple = new Tuple();
-        pkTuple = pkTuple.add(75);
-
+        // read typing, index type stored in second element in keyTuple
+        int typeCode = (int)keyTuple.getLong(1);
+        if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal())
+        {
+          System.out.println("B_PLUS entered");
+          indexType = IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX;
+        }
+        // otherwise, don't change because set to hash by default
+        System.out.println("typeCode : " + typeCode);
+        isIndexTypeInitialized = true;
+      }
+      // check comparison operators
+      if (predicateOperator == ComparisonOperator.LESS_THAN && !isInitializedToLast)
+      {
         Tuple thresholdTuple = new Tuple();
         thresholdTuple= thresholdTuple.add(tableName);
-        thresholdTuple= thresholdTuple.add(IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
-        thresholdTuple= thresholdTuple.add("Salary");
-        thresholdTuple= thresholdTuple.add(75);
-        thresholdTuple= thresholdTuple.add(pkTuple);
+        thresholdTuple= thresholdTuple.add(indexType.ordinal());
+        thresholdTuple= thresholdTuple.add(predicateAttributeName);
+        //Object val =  ;
+        thresholdTuple= thresholdTuple.addObject(predicateAttributeValue.getValue());
 
         System.out.println("testing fdbhelper func");
         System.out.println(predicateAttributeValue.getValue());
-        Tuple tup = new Tuple();
-        tup = tup.add(tableName);
-        tup= tup.add(IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
-        tup= tup.add("Salary");
-        int val =  (int)predicateAttributeValue.getValue();
-        tup = tup.add(val);
 
         indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
         //indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, tup, false);
