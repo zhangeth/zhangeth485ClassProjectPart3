@@ -376,12 +376,12 @@ public class Cursor {
 
       Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
 
-      System.out.println("Printing Map");
+/*      System.out.println("Printing Map");
       // convert
       for (Map.Entry<String, Record.Value> e : res.getMapAttrNameToValue().entrySet())
       {
         System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().getValue().toString());
-      }
+      }*/
       return res;
 
     }
@@ -437,8 +437,15 @@ public class Cursor {
       return null;
     }
     isInitializedToLast = true;
+    Record record;
+    if (isUsingIndex)
+    {
+      record = moveToNextUsingIndex(true);
+    }
+    else {
+      record = moveToNextRecord(true);
+    }
 
-    Record record = moveToNextRecord(true);
     if (isPredicateEnabled) {
       while (record != null && !doesRecordMatchPredicate(record)) {
         record = moveToNextRecord(false);

@@ -222,6 +222,7 @@ public class Part3Test {
 
   @Test
   public void unitTest3() {
+    System.out.println("Entering test 3");
     assertEquals(StatusCode.SUCCESS, indexes.createIndex(EmployeeTableName, SSN, IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX));
 
     for (int i = 100; i < initialNumberOfRecords + updatedNumberOfRecords; i++) {
