@@ -388,8 +388,9 @@ public class Cursor {
     {
       record = moveToNextUsingIndex(false);
     }
-
-    record = moveToNextRecord(false);
+    else {
+      record = moveToNextRecord(false);
+    }
 
     if (isPredicateEnabled) {
       while (record != null && !doesRecordMatchPredicate(record)) {
