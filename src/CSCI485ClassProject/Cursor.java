@@ -337,7 +337,7 @@ public class Cursor {
       if (indexType == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX)
       {
         long primaryVal = Long.valueOf((long)insidePrimaryTuple.get(0));
-        long predicateVal = ((Integer)predicateAttributeValue.getValue()).longValue();
+        long predicateVal = Long.valueOf((predicateAttributeValue.getValue().toString()));
         // started in beginning, and keeps on going if comparison is such.
         if (!isInitializedToLast && predicateOperator == ComparisonOperator.LESS_THAN && primaryVal >= predicateVal)
         {
