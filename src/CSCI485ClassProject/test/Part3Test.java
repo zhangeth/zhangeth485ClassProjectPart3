@@ -201,6 +201,11 @@ public class Part3Test {
       {
         System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().getValue().toString());
       }
+      System.out.println("returned Record");
+      for (Map.Entry<String, Record.Value> e : record.getMapAttrNameToValue().entrySet())
+      {
+        System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().getValue().toString());
+      }
 
       assertEquals(expectRecord, record);
     }
