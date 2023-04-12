@@ -168,7 +168,7 @@ public class RecordsImpl implements Records{
         insertIndex(db, tx, tableName, attrName,record.getValueForGivenAttrName(attrName), pkTuple);
 
       }
-      FDBHelper.getIndexSubspace(tx, tableName, (String)e.getKey());
+      //FDBHelper.getIndexSubspace(tx, tableName, (String)e.getKey());
     }
 
     FDBHelper.commitTransaction(tx);
