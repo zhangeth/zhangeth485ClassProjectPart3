@@ -74,12 +74,15 @@ public class FDBHelper {
     if (dir == null) {
       return null;
     }
-
+    System.out.println("entered thingy");
     if (!isReverse) {
+      System.out.println("trying to thing");
       KeySelector beginKeySelector = KeySelector.firstGreaterOrEqual(dir.pack(prefixTuple));
 
       Range dirRange = dir.range();
       Range range = new Range(beginKeySelector.getKey(), dirRange.end);
+
+      System.out.println("completed thing perhaps");
 
       return tx.getRange(range, ReadTransaction.ROW_LIMIT_UNLIMITED, false);
     } else {

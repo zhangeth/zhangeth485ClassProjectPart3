@@ -273,6 +273,8 @@ public class Cursor {
         {
           System.out.println("test 3 testing");
           System.out.println(thresholdTuple);
+          System.out.println(indexSubspace.getPath());
+
           indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
           indexIterator = indexIterable.iterator();
           if (indexIterable == null)
