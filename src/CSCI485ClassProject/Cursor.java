@@ -281,13 +281,21 @@ public class Cursor {
       Tuple insidePrimaryTuple = keyTuple.getNestedTuple(keyTuple.size() - 1);
       long primaryVal = Long.valueOf((long)insidePrimaryTuple.get(0));
       long predicateVal = ((Integer)predicateAttributeValue.getValue()).longValue();
-
-      if (predicateOperator == ComparisonOperator.LESS_THAN && primaryVal >= predicateVal)
+      // started in beginning, and keeps on going if comparison is such.
+      if (!isInitializedToLast && predicateOperator == ComparisonOperator.LESS_THAN && primaryVal >= predicateVal)
       {
         return null;
       }
-
-      if (predicateOperator == ComparisonOperator.GREATER_THAN && primaryVal <= predicateVal)
+      if (!isInitializedToLast && predicateOperator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO && primaryVal > predicateVal)
+      {
+        return null;
+      }
+      // started at end, greatest value, and keeps going until prim val is less than, or equal to, depending on operator
+      if (isInitializedToLast && predicateOperator == ComparisonOperator.GREATER_THAN && primaryVal <= predicateVal)
+      {
+        return null;
+      }
+      if (isInitializedToLast && predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO && primaryVal < predicateVal)
       {
         return null;
       }
