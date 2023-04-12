@@ -258,11 +258,37 @@ public class Cursor {
         System.out.println("typeCode : " + typeCode);
         isIndexTypeInitialized = true;
       }
-      // check comparison operators
       Tuple thresholdTuple = new Tuple();
       thresholdTuple= thresholdTuple.add(tableName);
       thresholdTuple= thresholdTuple.add(indexType.ordinal());
       thresholdTuple= thresholdTuple.add(predicateAttributeName);
+      thresholdTuple= thresholdTuple.addObject(predicateAttributeValue.getValue());
+      // check comparison operators, and ordering
+      if (!isInitializedToLast)
+      {
+        if (predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO || predicateOperator == ComparisonOperator.GREATER_THAN)
+        {
+          indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
+          indexIterator = indexIterable.iterator();
+          if ( predicateOperator == ComparisonOperator.GREATER_THAN)
+          {
+            indexIterator.next();
+          }
+        }
+      }
+      // going in reverse
+      else {
+        if (predicateOperator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO || predicateOperator == ComparisonOperator.LESS_THAN)
+        {
+          indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, true);
+          indexIterator = indexIterable.iterator();
+          if ( predicateOperator == ComparisonOperator.GREATER_THAN)
+          {
+            indexIterator.next();
+          }
+        }
+      }
+
 
       // reset iterator
       indexIterator = indexIterable.iterator();
