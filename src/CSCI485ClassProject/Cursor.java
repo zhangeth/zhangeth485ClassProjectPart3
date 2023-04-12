@@ -268,7 +268,7 @@ public class Cursor {
       thresholdTuple= thresholdTuple.add(tableName);
       thresholdTuple= thresholdTuple.add(indexType.ordinal());
       thresholdTuple= thresholdTuple.add(predicateAttributeName);
-      thresholdTuple= thresholdTuple.add((int)predicateAttributeValue.getValue());
+      thresholdTuple= thresholdTuple.addObject(predicateAttributeValue.getValue());
       // check comparison operators, and ordering
       if (!isInitializedToLast)
       {
