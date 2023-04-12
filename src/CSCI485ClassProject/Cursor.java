@@ -277,8 +277,14 @@ public class Cursor {
         System.out.println("making record");
         pairsToBeRecord.add(FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, mainDataIterator.next()));
       }
-      Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
 
+      Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
+      System.out.println("record: ");
+      System.out.println("ssn: " + res.getValueForGivenAttrName("SSN"));
+      System.out.println("name: " + res.getValueForGivenAttrName("Name"));
+      System.out.println("salary: " + res.getValueForGivenAttrName("Salary"));
+      System.out.println("address: " + res.getValueForGivenAttrName("Address"));
+      System.out.println("email: " + res.getValueForGivenAttrName("Email"));
       for (Map.Entry e :  res.getMapAttrNameToValue().entrySet())
       {
         System.out.print("key: " + e.getKey() + ", val: " + e.getValue());
