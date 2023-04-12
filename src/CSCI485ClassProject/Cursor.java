@@ -248,10 +248,9 @@ public class Cursor {
 
       Tuple keyTuple = kvPair.getKey();
 
-      if (isIndexTypeInitialized)
+      if (!isIndexTypeInitialized)
       {
         // read typing
-
         int typeCode = (int)keyTuple.getLong(1);
         if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal())
         {
@@ -275,26 +274,22 @@ public class Cursor {
 
       while (mainDataIterator.hasNext())
       {
-        System.out.println("making record");
+        //System.out.println("making record");
         KeyValue itKV = mainDataIterator.next();
-        System.out.println(itKV.toString());
-        Tuple valueTuple = Tuple.fromBytes(itKV.getValue());
+        //System.out.println(itKV.toString());
+        //Tuple valueTuple = Tuple.fromBytes(itKV.getValue());
         FDBKVPair itPair = FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, itKV);
-        System.out.print(itPair.getKey().toString() + " k, v: " + valueTuple.toString());
+        //System.out.print(itPair.getKey().toString() + " k, v: " + valueTuple.toString());
         pairsToBeRecord.add(itPair);
       }
 
       Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
-      System.out.println("record: ");
+/*      System.out.println("record: ");
       System.out.println("ssn: " + res.getValueForGivenAttrName("SSN"));
       System.out.println("name: " + res.getValueForGivenAttrName("Name"));
       System.out.println("salary: " + res.getValueForGivenAttrName("Salary"));
       System.out.println("address: " + res.getValueForGivenAttrName("Address"));
-      System.out.println("email: " + res.getValueForGivenAttrName("Email"));
-      for (Map.Entry e :  res.getMapAttrNameToValue().entrySet())
-      {
-        System.out.print("key: " + e.getKey() + ", val: " + e.getValue());
-      }
+      System.out.println("email: " + res.getValueForGivenAttrName("Email"));*/
       // convert
       return res;
 
