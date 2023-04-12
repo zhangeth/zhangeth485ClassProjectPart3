@@ -362,7 +362,7 @@ public class Part3Test {
     System.out.println("Test6 passed!");
   }
 
-/*
+
   @Test
   public void unitTest7() {
     // perf test
@@ -437,7 +437,7 @@ public class Part3Test {
     long executionTimeWithBPlusTreeIndex = (endTime - startTime) / 1000;
     System.out.println("Query " + numOfQueries + " Records with non-clustered B+Tree index: " + executionTimeWithBPlusTreeIndex + " milliseconds");
     System.out.println("Test7 passed!");
-  }*/
+  }
 
 
 }
