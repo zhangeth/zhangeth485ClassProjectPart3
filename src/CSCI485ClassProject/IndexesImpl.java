@@ -3,6 +3,7 @@ package CSCI485ClassProject;
 import CSCI485ClassProject.fdb.FDBHelper;
 import CSCI485ClassProject.models.IndexType;
 import com.apple.foundationdb.Database;
+import com.apple.foundationdb.FDB;
 import com.apple.foundationdb.Transaction;
 import com.apple.foundationdb.directory.DirectorySubspace;
 
@@ -65,7 +66,15 @@ public class IndexesImpl implements Indexes{
 
   @Override
   public StatusCode dropIndex(String tableName, String attrName) {
-    // your code
-    return null;
+    // aww yeah we gamin now bois
+    Transaction tx = FDBHelper.openTransaction(db);
+    List<String> path =  FDBHelper.getIndexPath(tx, tableName, attrName);
+    if (FDBHelper.doesIndexExist(tx, tableName, attrName))
+    {
+      FDBHelper.dropSubspace(tx, path);
+      return StatusCode.SUCCESS;
+    }
+
+    return StatusCode.INDEX_NOT_FOUND;
   }
 }
