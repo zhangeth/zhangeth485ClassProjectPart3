@@ -265,7 +265,7 @@ public class Cursor {
       thresholdTuple= thresholdTuple.add(tableName);
       thresholdTuple= thresholdTuple.add(indexType.ordinal());
       thresholdTuple= thresholdTuple.add(predicateAttributeName);
-      thresholdTuple= thresholdTuple.addObject(predicateAttributeValue.getValue());
+      thresholdTuple= thresholdTuple.add((int)predicateAttributeValue.getValue());
       // check comparison operators, and ordering
       if (!isInitializedToLast)
       {
@@ -273,7 +273,7 @@ public class Cursor {
         {
           System.out.println("test 3 testing");
           System.out.println(thresholdTuple);
-          indexIterable = FDBHelper.getKVPairIterableWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
+          indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
           indexIterator = indexIterable.iterator();
           if (indexIterable == null)
           {
