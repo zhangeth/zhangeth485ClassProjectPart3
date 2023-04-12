@@ -11,13 +11,7 @@ import com.apple.foundationdb.Transaction;
 import com.apple.foundationdb.directory.DirectorySubspace;
 import com.apple.foundationdb.tuple.Tuple;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RecordsImpl implements Records{
 
@@ -178,7 +172,11 @@ public class RecordsImpl implements Records{
         {
           System.out.println("kv key: " + kv.getKey().toString());
         }*/
-
+        List<String> p = new ArrayList<>(); p.add(tableName); p.add("SalaryIndex");
+        for (FDBKVPair pa : FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, p))
+        {
+          System.out.println("pa key: " + pa.getKey());
+        }
         cursor = new Cursor(mode, tableName, tblMetadata, tx, true);
 
       }
