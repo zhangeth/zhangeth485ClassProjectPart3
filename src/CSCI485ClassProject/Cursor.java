@@ -257,8 +257,8 @@ public class Cursor {
         int val =  (int)predicateAttributeValue.getValue();
         tup = tup.add(val);
 
-        //indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
-        indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, tup, false);
+        indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
+        //indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, tup, false);
         indexIterator = indexIterable.iterator();
         System.out.println("reeeee");
       }

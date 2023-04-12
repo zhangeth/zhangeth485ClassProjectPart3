@@ -69,6 +69,7 @@ public class FDBHelper {
     return tx.getRange(Range.startsWith(dir.pack(prefixTuple)), ReadTransaction.ROW_LIMIT_UNLIMITED, isReverse);
   }
 
+  // starts at prefixTuple and either goes in reverse or to the end of the index structure
   public static AsyncIterable<KeyValue> getKVPairIterableStartWithPrefixInDirectory(DirectorySubspace dir, Transaction tx, Tuple prefixTuple, boolean isReverse) {
     if (dir == null) {
       return null;
