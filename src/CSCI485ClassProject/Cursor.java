@@ -261,7 +261,7 @@ public class Cursor {
         thresholdTuple= thresholdTuple.add(indexType.ordinal());
         thresholdTuple= thresholdTuple.add(predicateAttributeName);
         //Object val =  ;
-        thresholdTuple= thresholdTuple.addObject(predicateAttributeValue.getValue());
+        thresholdTuple= thresholdTuple.addObject((int)predicateAttributeValue.getValue() + 1);
 
         System.out.println("testing fdbhelper func");
         System.out.println(predicateAttributeValue.getValue());
