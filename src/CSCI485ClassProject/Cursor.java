@@ -44,6 +44,11 @@ public class Cursor {
 
   private AsyncIterator<KeyValue> iterator = null;
 
+  private AsyncIterator<KeyValue> indexIterator = null;
+
+  // by default is hash
+  private IndexType indexType = IndexType.NON_CLUSTERED_HASH_INDEX
+
   private Record currentRecord = null;
 
   private Transaction tx;
@@ -51,6 +56,9 @@ public class Cursor {
   private DirectorySubspace directorySubspace;
 
   private DirectorySubspace indexSubspace;
+
+  // initialized at start of moveToNext
+  private List<String> recordStorePath;
 
   private boolean isMoved = false;
   private FDBKVPair currentKVPair = null;
@@ -215,70 +223,48 @@ public class Cursor {
     if (isInitializing) {
       recordsTransformer = new RecordsTransformer(getTableName(), getTableMetadata());
       directorySubspace = FDBHelper.openSubspace(tx, recordsTransformer.getTableRecordPath());
+      recordStorePath = recordsTransformer.getTableRecordPath();
       AsyncIterable<KeyValue> fdbIterable = FDBHelper.getKVPairIterableOfDirectory(directorySubspace, tx, isInitializedToLast);
       if (fdbIterable != null)
         iterator = fdbIterable.iterator();
 
+      // initialize indexIterator
+      AsyncIterable<KeyValue> indexIterable  = FDBHelper.getKVPairIterableOfDirectory(indexSubspace, tx, false);
+      if (indexIterable != null)
+      {
+        indexIterator = indexIterable.iterator();
+      }
+      else
+      {
+        System.out.println("Index Iterable is null");
+        return null;
+      }
       isInitialized = true;
     }
-
-    AsyncIterable<KeyValue> indexIterable  = FDBHelper.getKVPairIterableOfDirectory(indexSubspace, tx, false);
-    AsyncIterator<KeyValue> indexIterator = indexIterable.iterator();
-
-    // read index type from first element
-    IndexType idxType = IndexType.NON_CLUSTERED_HASH_INDEX;
-
+    // get pk Value
     if (indexIterator.hasNext())
     {
       KeyValue kv = indexIterator.next();
-
       FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
-      // pk value is last object in key
-      int keySize = kvPair.getKey().getItems().size();
-      Tuple kT = kvPair.getKey();
-      Tuple insideTuple = kT.getNestedTuple(kT.size() - 1);
 
-      int numPK = tableMetadata.getPrimaryKeys().size();
+      Tuple keyTuple = kvPair.getKey();
+      Tuple insidePrimaryTuple = keyTuple.getNestedTuple(keyTuple.size() - 1);
 
-      Tuple keyTuple = new Tuple();
-      keyTuple = keyTuple.add(insideTuple.getLong(0));
-      // keyTuple = keyTuple.add(tableMetadata.getPrimaryKeys().get(0));
-      System.out.println(keyTuple + " : queried keyTuple");
+      System.out.println(insidePrimaryTuple + " : queried primaryTuple");
 
-      Tuple test2 = keyTuple.add(predicateAttributeName);
-
-      System.out.println("records Transformer: " + recordsTransformer.getTableRecordPath());
-
-      DirectorySubspace subspace = FDBHelper.createOrOpenSubspace(tx, recordsTransformer.getTableRecordPath());
-      // verify directory subspace
-      // List<FDBKVPair> pairs = FDBHelper.getAllKeyValuePairsOfSubdirectory(, tx, )
-      FDBKVPair keyPair = FDBHelper.getCertainKeyValuePairInSubdirectory(subspace, tx, test2, recordsTransformer.getTableRecordPath());
-
-      System.out.println("test key: " + keyPair.getKey().toString());
-      System.out.println("val of above: " + keyPair.getValue().toString());
-
-      AsyncIterable<KeyValue> searchIterable = FDBHelper.getKVPairIterableWithPrefixInDirectory(directorySubspace, tx, keyTuple, false);
-      AsyncIterator<KeyValue> searchIterator = searchIterable.iterator();
+      // make record in main data, starting from ssn key
+      AsyncIterable<KeyValue> mainDataIterable = FDBHelper.getKVPairIterableWithPrefixInDirectory(directorySubspace, tx, insidePrimaryTuple, false);
+      AsyncIterator<KeyValue> mainDataIterator = mainDataIterable.iterator();
 
       List<FDBKVPair> pairsToBeRecord = new ArrayList<>();
 
-      List<String> recordStorePath = recordsTransformer.getTableRecordPath();
-
-      while (searchIterator.hasNext())
+      while (mainDataIterator.hasNext())
       {
-        pairsToBeRecord.add(FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, searchIterator.next()));
+        pairsToBeRecord.add(FDBHelper.convertKeyValueToFDBKVPair(tx, recordStorePath, mainDataIterator.next()));
       }
 
       // convert
       return recordsTransformer.convertBackToRecord(pairsToBeRecord);
-      // get pkName
-/*      tableMetadata.getPrimaryKeys().get(0);
-
-      for (Object o : kvPair.getKey().getItems())
-      {
-        System.out.print("Object: " + o.toString());
-      }
-      System.out.println();*/
 
     }
     // get keyQuery using predicate value
