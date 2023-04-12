@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
@@ -194,6 +195,13 @@ public class Part3Test {
       System.out.println("testing: " + i);
 
       Record expectRecord = getExpectedEmployeeRecord(ssn);
+
+      System.out.println("expected Record");
+      for (Map.Entry<String, Record.Value> e : expectRecord.getMapAttrNameToValue().entrySet())
+      {
+        System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().getValue().toString());
+      }
+
       assertEquals(expectRecord, record);
     }
 
