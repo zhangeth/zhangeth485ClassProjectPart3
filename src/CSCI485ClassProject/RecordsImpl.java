@@ -52,7 +52,7 @@ public class RecordsImpl implements Records{
     // otherwise, don't change because set to hash by default
     System.out.println("typeCode : " + typeCode);
 
-    NonClusteredIndexRecord rec = new NonClusteredIndexRecord(tableName, targetAttrName, Long.valueOf(targetAttrVal.toString()), pkVal, idxType);
+    NonClusteredIndexRecord rec = new NonClusteredIndexRecord(tableName, targetAttrName, targetAttrVal, pkVal, idxType);
     rec.setRecord(tx);
 
   }

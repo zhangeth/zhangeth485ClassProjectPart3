@@ -15,10 +15,10 @@ public class NonClusteredIndexRecord {
     private String tableName;
     private static IndexType indexType = IndexType.NON_CLUSTERED_HASH_INDEX;
     private String hashAttrName;
-    private Long hashValue;
+    private Object hashValue;
     private Tuple pkValue;
 
-    public NonClusteredIndexRecord(String tableName, String hashAttrName, Long hashValue, Tuple pkValue, IndexType indexType) {
+    public NonClusteredIndexRecord(String tableName, String hashAttrName, Object hashValue, Tuple pkValue, IndexType indexType) {
         this.tableName = tableName;
         this.indexType = indexType;
         // index type is automatic non-clustered
@@ -29,7 +29,7 @@ public class NonClusteredIndexRecord {
 
     public Tuple getKeyTuple() {
         Tuple keyTuple = new Tuple();
-        keyTuple = keyTuple.add(tableName).add(indexType.ordinal()).add(hashAttrName).add(hashValue).add(pkValue);
+        keyTuple = keyTuple.add(tableName).add(indexType.ordinal()).add(hashAttrName).addObject(hashValue).add(pkValue);
         return keyTuple;
     }
 
