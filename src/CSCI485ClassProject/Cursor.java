@@ -271,6 +271,8 @@ public class Cursor {
       {
         if (predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO || predicateOperator == ComparisonOperator.GREATER_THAN)
         {
+          System.out.println("test 3 testing");
+          System.out.println(thresholdTuple);
           indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
           indexIterator = indexIterable.iterator();
           if ( predicateOperator == ComparisonOperator.GREATER_THAN)
