@@ -254,7 +254,8 @@ public class Cursor {
         tup = tup.add(tableName);
         tup= tup.add(IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
         tup= tup.add("Salary");
-        tup = tup.add((long)predicateAttributeValue.getValue() - 1);
+        long val =  Long.valueOf((long)predicateAttributeValue.getValue());
+        tup = tup.add(val);
 
         //indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
         indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, tup, true);
