@@ -235,6 +235,19 @@ public class Cursor {
       if (fdbIterable != null)
         iterator = fdbIterable.iterator();
 
+      // do equals check early
+/*      if (predicateOperator == ComparisonOperator.EQUAL_TO)
+      {
+        Tuple thresholdTuple = new Tuple();
+        thresholdTuple= thresholdTuple.add(tableName);
+        thresholdTuple= thresholdTuple.add(indexType.ordinal());
+        thresholdTuple= thresholdTuple.add(predicateAttributeName);
+        thresholdTuple= thresholdTuple.addObject(predicateAttributeValue.getValue());
+
+        AsyncIterable<KeyValue> indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
+        indexIterator = indexIterable.iterator();
+      }*/
+
       // initialize indexIterator, depending on comparisonOperator, define range
       AsyncIterable<KeyValue> indexIterable  = FDBHelper.getKVPairIterableOfDirectory(indexSubspace, tx, false);
       if (indexIterable != null) {
@@ -319,27 +332,30 @@ public class Cursor {
 
       // call next on indexIterator
       Tuple keyTuple = kvPair.getKey();
-
       Tuple insidePrimaryTuple = keyTuple.getNestedTuple(keyTuple.size() - 1);
-      long primaryVal = Long.valueOf((long)insidePrimaryTuple.get(0));
-      long predicateVal = ((Integer)predicateAttributeValue.getValue()).longValue();
-      // started in beginning, and keeps on going if comparison is such.
-      if (!isInitializedToLast && predicateOperator == ComparisonOperator.LESS_THAN && primaryVal >= predicateVal)
+
+      if (indexType == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX)
       {
-        return null;
-      }
-      if (!isInitializedToLast && predicateOperator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO && primaryVal > predicateVal)
-      {
-        return null;
-      }
-      // started at end, greatest value, and keeps going until prim val is less than, or equal to, depending on operator
-      if (isInitializedToLast && predicateOperator == ComparisonOperator.GREATER_THAN && primaryVal <= predicateVal)
-      {
-        return null;
-      }
-      if (isInitializedToLast && predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO && primaryVal < predicateVal)
-      {
-        return null;
+        long primaryVal = Long.valueOf((long)insidePrimaryTuple.get(0));
+        long predicateVal = ((Integer)predicateAttributeValue.getValue()).longValue();
+        // started in beginning, and keeps on going if comparison is such.
+        if (!isInitializedToLast && predicateOperator == ComparisonOperator.LESS_THAN && primaryVal >= predicateVal)
+        {
+          return null;
+        }
+        if (!isInitializedToLast && predicateOperator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO && primaryVal > predicateVal)
+        {
+          return null;
+        }
+        // started at end, greatest value, and keeps going until prim val is less than, or equal to, depending on operator
+        if (isInitializedToLast && predicateOperator == ComparisonOperator.GREATER_THAN && primaryVal <= predicateVal)
+        {
+          return null;
+        }
+        if (isInitializedToLast && predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO && primaryVal < predicateVal)
+        {
+          return null;
+        }
       }
 
       //System.out.println(insidePrimaryTuple + " : queried primaryTuple");
