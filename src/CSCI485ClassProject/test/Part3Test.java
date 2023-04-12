@@ -192,22 +192,8 @@ public class Part3Test {
       }
 
       long ssn = i;
-      System.out.println("testing: " + i);
 
       Record expectRecord = getExpectedEmployeeRecord(ssn);
-
-/*
-      System.out.println("expected Record");
-      for (Map.Entry<String, Record.Value> e : expectRecord.getMapAttrNameToValue().entrySet())
-      {
-        System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().getValue().toString());
-      }
-      System.out.println("returned Record");
-      for (Map.Entry<String, Record.Value> e : record.getMapAttrNameToValue().entrySet())
-      {
-        System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().getValue().toString());
-      }
-*/
 
       assertEquals(expectRecord, record);
     }
@@ -253,7 +239,6 @@ public class Part3Test {
       }
 
       long ssn = i;
-      System.out.println("Testing: " + i);
       Record expectRecord = getExpectedEmployeeRecord(ssn);
       assertEquals(expectRecord, record);
     }
@@ -377,7 +362,7 @@ public class Part3Test {
     System.out.println("Test6 passed!");
   }
 
-  /*
+/*
   @Test
   public void unitTest7() {
     // perf test
@@ -452,7 +437,7 @@ public class Part3Test {
     long executionTimeWithBPlusTreeIndex = (endTime - startTime) / 1000;
     System.out.println("Query " + numOfQueries + " Records with non-clustered B+Tree index: " + executionTimeWithBPlusTreeIndex + " milliseconds");
     System.out.println("Test7 passed!");
-  }
+  }*/
 
-   */
+
 }

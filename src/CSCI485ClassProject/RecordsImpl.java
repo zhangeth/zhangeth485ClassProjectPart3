@@ -44,13 +44,13 @@ public class RecordsImpl implements Records{
     if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal())
     {
       idxType = IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX;
-      System.out.println("B_PLUS type");
+      //System.out.println("B_PLUS type");
     }
     else {
       idxType = IndexType.NON_CLUSTERED_HASH_INDEX;
     }
     // otherwise, don't change because set to hash by default
-    System.out.println("typeCode : " + typeCode);
+    //System.out.println("typeCode : " + typeCode);
 
     NonClusteredIndexRecord rec = new NonClusteredIndexRecord(tableName, targetAttrName, targetAttrVal, pkVal, idxType);
     rec.setRecord(tx);
@@ -158,7 +158,7 @@ public class RecordsImpl implements Records{
       potentialIndexPath.add(tableName); potentialIndexPath.add(attrName + "Index");
       if (FDBHelper.doesSubdirectoryExists(tx, potentialIndexPath))
       {
-        System.out.println("entered insertion for: " + attrName);
+       // System.out.println("entered insertion for: " + attrName);
         Tuple pkTuple = new Tuple();
         for (String s : tblMetadata.getPrimaryKeys())
         {
@@ -222,11 +222,11 @@ public class RecordsImpl implements Records{
         {
           System.out.println("kv key: " + kv.getKey().toString());
         }*/
-        List<String> p = new ArrayList<>(); p.add(tableName); p.add("SalaryIndex");
+/*        List<String> p = new ArrayList<>(); p.add(tableName); p.add("SalaryIndex");
         for (FDBKVPair pa : FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tx, p))
         {
           System.out.println("pa key: " + pa.getKey());
-        }
+        }*/
         cursor = new Cursor(mode, tableName, tblMetadata, tx, true);
 
       }

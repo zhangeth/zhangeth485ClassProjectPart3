@@ -254,11 +254,11 @@ public class Cursor {
         int typeCode = (int)keyTuple.getLong(1);
         if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal())
         {
-          System.out.println("B_PLUS entered");
+          //System.out.println("B_PLUS entered");
           indexType = IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX;
         }
         // otherwise, don't change because set to hash by default
-        System.out.println("typeCode : " + typeCode);
+        //System.out.println("typeCode : " + typeCode);
         isIndexTypeInitialized = true;
       }
       // reset iterator
@@ -274,9 +274,9 @@ public class Cursor {
       {
         if (predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO || predicateOperator == ComparisonOperator.GREATER_THAN)
         {
-          System.out.println("test 3 testing");
+          /*System.out.println("test 3 testing");
           System.out.println(thresholdTuple);
-          System.out.println(indexSubspace.getPath());
+          System.out.println(indexSubspace.getPath());*/
 
           indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
           indexIterator = indexIterable.iterator();
@@ -342,7 +342,7 @@ public class Cursor {
         return null;
       }
 
-      System.out.println(insidePrimaryTuple + " : queried primaryTuple");
+      //System.out.println(insidePrimaryTuple + " : queried primaryTuple");
 
       // make record in main data, starting from ssn key
       AsyncIterable<KeyValue> mainDataIterable = FDBHelper.getKVPairIterableWithPrefixInDirectory(directorySubspace, tx, insidePrimaryTuple, false);
@@ -361,12 +361,12 @@ public class Cursor {
 
       Record res = recordsTransformer.convertBackToRecord(pairsToBeRecord);
 
-      System.out.println("Printing Map");
+/*      System.out.println("Printing Map");
       // convert
       for (Map.Entry<String, Record.Value> e : res.getMapAttrNameToValue().entrySet())
       {
         System.out.println("key: " + e.getKey().toString() + ", Val: " + e.getValue().getValue().toString());
-      }
+      }*/
       return res;
 
     }
