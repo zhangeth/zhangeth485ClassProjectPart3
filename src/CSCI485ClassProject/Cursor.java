@@ -269,12 +269,10 @@ public class Cursor {
     // get pk Value
     if (indexIterator.hasNext())
     {
-
+      kv = indexIterator.next();
       FDBKVPair kvPair = FDBHelper.convertKeyValueToFDBKVPair(tx, FDBHelper.getIndexPath(tx, tableName, predicateAttributeName), kv);
 
       // call next on indexIterator
-      kv = indexIterator.next();
-
       Tuple keyTuple = kvPair.getKey();
 
       Tuple insidePrimaryTuple = keyTuple.getNestedTuple(keyTuple.size() - 1);
