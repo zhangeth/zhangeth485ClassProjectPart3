@@ -264,6 +264,9 @@ public class Cursor {
       thresholdTuple= thresholdTuple.add(indexType.ordinal());
       thresholdTuple= thresholdTuple.add(predicateAttributeName);
 
+      // reset iterator
+      indexIterator = indexIterable.iterator();
+
       isInitialized = true;
     }
     // get pk Value
