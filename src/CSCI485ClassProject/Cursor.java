@@ -287,6 +287,11 @@ public class Cursor {
         return null;
       }
 
+      if (predicateOperator == ComparisonOperator.GREATER_THAN && primaryVal <= predicateVal)
+      {
+        return null;
+      }
+
       System.out.println(insidePrimaryTuple + " : queried primaryTuple");
 
       // make record in main data, starting from ssn key
