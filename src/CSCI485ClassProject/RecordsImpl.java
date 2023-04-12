@@ -121,6 +121,28 @@ public class RecordsImpl implements Records{
       FDBHelper.setFDBKVPair(tableSchemaDirectory, tx, kv);
     }
 
+    // update index if there are any
+    // loop through attributes, and check if any Indices exist, update them if they do
+    for (Map.Entry e :  tblMetadata.getAttributes().entrySet())
+    {
+      List<String> potentialIndexPath = new ArrayList<>();
+      String attrName = e.getKey().toString();
+      potentialIndexPath.add(tableName); potentialIndexPath.add(attrName + "Index");
+      if (FDBHelper.doesSubdirectoryExists(tx, potentialIndexPath))
+      {
+        System.out.println("entered insertion for: " + attrName);
+        Tuple pkTuple = new Tuple();
+        for (String s : tblMetadata.getPrimaryKeys())
+        {
+          pkTuple = pkTuple.addObject(record.getValueForGivenAttrName(s));
+        }
+        // update index with appropriate record
+        NonClusteredIndex.insertIndex(db, tx, tableName, attrName,record.getValueForGivenAttrName(attrName), pkTuple);
+
+      }
+      FDBHelper.getIndexSubspace(tx, tableName, (String)e.getKey());
+    }
+
     FDBHelper.commitTransaction(tx);
     return StatusCode.SUCCESS;
   }
