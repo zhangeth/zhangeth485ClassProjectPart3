@@ -38,7 +38,7 @@ public class IndexesImpl implements Indexes{
     List<String> indexPath = tablePath;
     indexPath.add(attrName + "Index");
 
-    if (FDBHelper.doesSubdirectoryExists(tx,indexPath))
+    if (FDBHelper.doesSubdirectoryExists(tx, indexPath))
     {
       return StatusCode.INDEX_ALREADY_EXISTS_ON_ATTRIBUTE;
     }
@@ -72,6 +72,7 @@ public class IndexesImpl implements Indexes{
     if (FDBHelper.doesIndexExist(tx, tableName, attrName))
     {
       FDBHelper.dropSubspace(tx, path);
+      FDBHelper.commitTransaction(tx);
       return StatusCode.SUCCESS;
     }
 
