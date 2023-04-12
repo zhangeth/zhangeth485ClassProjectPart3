@@ -67,10 +67,4 @@ public class NonClusteredIndex {
 
     }
 
-
-    public static void commitIndex()
-            // keyTuple: [tableName, attrName, hashAttrValue, pkValu], valueTuple; ""
-            // instead of going through whole list, maybe do one by one commit in above
-    {}
-
 }

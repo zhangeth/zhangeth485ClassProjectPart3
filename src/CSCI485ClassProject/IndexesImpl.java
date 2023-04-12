@@ -45,28 +45,12 @@ public class IndexesImpl implements Indexes{
 
     // loop through table subspace and make NonClusteredHashIndex
     NonClusteredIndex.buildNonClusteredIndex(db, tx, tableName, attrName, indexType);
-    // for now, assume it's a non_clustered_hash_index, ignore second type
-    // create index structure from existing data, so we want to translate records into in memory hashmap, in which
-    // the order of the key (hash) is tableName, targetAttrName, attrValue (hashValue), corresponding primaryKey
-/*    tablePath.add("EmailIndex");
 
-    Transaction tc = FDBHelper.openTransaction(db);
-    // check subspace
-    List<FDBKVPair> list =  FDBHelper.getAllKeyValuePairsOfSubdirectory(db, tc, tablePath);
-
-    for (FDBKVPair p : list)
-    {
-      System.out.println(p.getKey() + " : key" + p.getValue() + ": val");
-    }*/
-
-
-    //System.out.println("reached end");
     return StatusCode.SUCCESS;
   }
 
   @Override
   public StatusCode dropIndex(String tableName, String attrName) {
-    // aww yeah we gamin now bois
     Transaction tx = FDBHelper.openTransaction(db);
     List<String> path =  FDBHelper.getIndexPath(tx, tableName, attrName);
     if (FDBHelper.doesIndexExist(tx, tableName, attrName))

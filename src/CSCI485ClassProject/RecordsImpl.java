@@ -44,17 +44,14 @@ public class RecordsImpl implements Records{
     if (typeCode == IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal())
     {
       idxType = IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX;
-      //System.out.println("B_PLUS type");
     }
     else {
       idxType = IndexType.NON_CLUSTERED_HASH_INDEX;
     }
     // otherwise, don't change because set to hash by default
-    //System.out.println("typeCode : " + typeCode);
 
     NonClusteredIndexRecord rec = new NonClusteredIndexRecord(tableName, targetAttrName, targetAttrVal, pkVal, idxType);
     rec.setRecord(tx);
-
   }
   @Override
   public StatusCode insertRecord(String tableName, String[] primaryKeys, Object[] primaryKeysValues, String[] attrNames, Object[] attrValues) {
@@ -168,7 +165,7 @@ public class RecordsImpl implements Records{
         insertIndex(db, tx, tableName, attrName,record.getValueForGivenAttrName(attrName), pkTuple);
 
       }
-      //FDBHelper.getIndexSubspace(tx, tableName, (String)e.getKey());
+
     }
 
     FDBHelper.commitTransaction(tx);

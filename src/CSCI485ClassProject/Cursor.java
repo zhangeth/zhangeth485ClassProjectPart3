@@ -270,7 +270,7 @@ public class Cursor {
       // check comparison operators, and ordering
       if (!isInitializedToLast)
       {
-        if (predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO || predicateOperator == ComparisonOperator.GREATER_THAN || predicateOperator == ComparisonOperator.EQUAL_TO)
+        if (predicateOperator == ComparisonOperator.GREATER_THAN_OR_EQUAL_TO || predicateOperator == ComparisonOperator.GREATER_THAN)
         {
           indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, false);
           indexIterator = indexIterable.iterator();
@@ -283,7 +283,7 @@ public class Cursor {
       }
       // going in reverse
       else {
-        if (predicateOperator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO || predicateOperator == ComparisonOperator.LESS_THAN || predicateOperator == ComparisonOperator.EQUAL_TO)
+        if (predicateOperator == ComparisonOperator.LESS_THAN_OR_EQUAL_TO || predicateOperator == ComparisonOperator.LESS_THAN)
         {
           indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, thresholdTuple, true);
           indexIterator = indexIterable.iterator();
