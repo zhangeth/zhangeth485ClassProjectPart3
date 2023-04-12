@@ -254,10 +254,10 @@ public class Cursor {
         tup = tup.add(tableName);
         tup= tup.add(IndexType.NON_CLUSTERED_B_PLUS_TREE_INDEX.ordinal());
         tup= tup.add("Salary");
-        tup = tup.addObject(predicateAttributeValue.getValue());
+        tup = tup.add((long)predicateAttributeValue.getValue() - 1);
 
         //indexIterable = FDBHelper.getKVPairIterableOfDirectoryGivenValue(indexSubspace, tx, false, thresholdTuple);
-        indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, tup, false);
+        indexIterable = FDBHelper.getKVPairIterableStartWithPrefixInDirectory(indexSubspace, tx, tup, true);
         indexIterator = indexIterable.iterator();
         System.out.println("reeeee");
       }
