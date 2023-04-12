@@ -258,6 +258,9 @@ public class Cursor {
         System.out.println("typeCode : " + typeCode);
         isIndexTypeInitialized = true;
       }
+      // reset iterator
+      indexIterator = indexIterable.iterator();
+
       Tuple thresholdTuple = new Tuple();
       thresholdTuple= thresholdTuple.add(tableName);
       thresholdTuple= thresholdTuple.add(indexType.ordinal());
@@ -288,10 +291,6 @@ public class Cursor {
           }
         }
       }
-
-
-      // reset iterator
-      indexIterator = indexIterable.iterator();
 
       isInitialized = true;
     }
