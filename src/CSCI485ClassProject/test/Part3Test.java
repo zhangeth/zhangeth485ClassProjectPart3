@@ -312,7 +312,7 @@ public class Part3Test {
     System.out.println("Test4 passed!");
   }
 
-  /*
+
   @Test
   public void unitTest5() {
     for (int i = 0; i < initialNumberOfRecords + updatedNumberOfRecords; i++) {
@@ -335,8 +335,8 @@ public class Part3Test {
     assertEquals(StatusCode.SUCCESS, indexes.dropIndex(EmployeeTableName, SSN));
     System.out.println("Test5 passed!");
   }
-*/
-  /*
+
+
   @Test
   public void unitTest6() {
     Cursor cursor = records.openCursor(EmployeeTableName, Cursor.Mode.READ_WRITE);
@@ -376,7 +376,7 @@ public class Part3Test {
     assertEquals(StatusCode.SUCCESS, records.commitCursor(cursor));
     System.out.println("Test6 passed!");
   }
-*/
+
   /*
   @Test
   public void unitTest7() {
